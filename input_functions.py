@@ -42,7 +42,7 @@ def input_qtm(filename):
 			print(year[i]+month[i]+day[i]+hour[i]+minute[i]);
 			newdate = dt.datetime.strptime(year[i]+month[i]+day[i]+hour[i], "%Y%m%d%H");
 		dtarray.append(newdate);
-	MyCat = Catalog(dtarray=dtarray, lon=lon, lat=lat, depth=depth, Mag=mag, fm=None);
+	MyCat = Catalog(dtarray=dtarray, lon=lon, lat=lat, depth=depth, Mag=mag, fm=None, catname="QTM");
 	print("done at : ", dt.datetime.now());
 	return MyCat;
 
@@ -78,7 +78,7 @@ def input_shearer_cat(filename):
 		magnitude.append(float(temp[10]));
 	ifile.close();
 
-	MyCat = Catalog(dtarray=dtarray, lon=longitude, lat=latitude, depth=depth, Mag=magnitude, fm=None);
+	MyCat = Catalog(dtarray=dtarray, lon=longitude, lat=latitude, depth=depth, Mag=magnitude, fm=None, catname="Shearer");
 	return MyCat;
 
 
@@ -93,7 +93,7 @@ def read_Wei_2015_supplement(filename):
 		mag.append(float(line.split()[4]));
 		fm.append(line.split()[5]);
 	ifile.close();
-	MyCatalog = Catalog(dtarray=None, lon=lon, lat=lat, depth=depth, Mag=mag, fm=fm);
+	MyCatalog = Catalog(dtarray=None, lon=lon, lat=lat, depth=depth, Mag=mag, fm=fm, catname='Wei_2015');
 	return MyCatalog;
 
 
@@ -111,7 +111,7 @@ def read_usgs_website_csv(filename):
 			depth.append(float(row[3]));
 			magnitude.append(float(row[4]));
 
-	MyCat = Catalog(dtarray=dtarray, lon=longitude, lat=latitude, depth=depth, Mag=magnitude, fm=None);
+	MyCat = Catalog(dtarray=dtarray, lon=longitude, lat=latitude, depth=depth, Mag=magnitude, fm=None, catname="USGS");
 	return MyCat
 
 
@@ -122,7 +122,7 @@ def read_simple_catalog_txt(filename):
 																   'formats': ('U19', np.float, np.float, np.float, np.float)
 																   }, unpack=True);
 	dtarray = [dt.datetime.strptime(i, "%Y-%m-%d-%H-%M-%S") for i in datestrs];
-	MyCat = Catalog(dtarray=dtarray, lon=lon, lat=lat, depth=depth, Mag=Mag, fm=None);
+	MyCat = Catalog(dtarray=dtarray, lon=lon, lat=lat, depth=depth, Mag=Mag, fm=None, catname='');
 	return MyCat;
 
 
