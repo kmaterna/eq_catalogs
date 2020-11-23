@@ -42,7 +42,7 @@ def input_qtm(filename):
 			print(year[i]+month[i]+day[i]+hour[i]+minute[i]);
 			newdate = dt.datetime.strptime(year[i]+month[i]+day[i]+hour[i], "%Y%m%d%H");
 		dtarray.append(newdate);
-	MyCat = Catalog(dtarray=dtarray, lon=lon, lat=lat, depth=depth, Mag=mag, fm=None, catname="QTM");
+	MyCat = Catalog(dtarray=dtarray, lon=lon, lat=lat, depth=depth, Mag=mag, strike=None, dip=None, rake=None, catname="QTM");
 	print("done at : ", dt.datetime.now());
 	return MyCat;
 
@@ -50,7 +50,7 @@ def input_qtm(filename):
 def input_shearer_cat(filename):
 	# Useful for the Shearer Yang Catalog
 	print("Reading file %s " % filename);
-	ifile=open(filename);
+	ifile = open(filename);
 	dtarray = []; latitude = []; longitude = []; depth = []; magnitude = [];
 	for line in ifile:
 		temp = line.split();
@@ -78,23 +78,54 @@ def input_shearer_cat(filename):
 		magnitude.append(float(temp[10]));
 	ifile.close();
 
-	MyCat = Catalog(dtarray=dtarray, lon=longitude, lat=latitude, depth=depth, Mag=magnitude, fm=None, catname="Shearer");
+	MyCat = Catalog(dtarray=dtarray, lon=longitude, lat=latitude, depth=depth, Mag=magnitude, strike=None, dip=None, rake=None, catname="Shearer");
 	return MyCat;
 
 
 def read_Wei_2015_supplement(filename):
 	print("Reading earthquake catalog from file %s " % filename)
-	lon=[]; lat=[]; depth=[]; mag=[]; fm=[];
-	ifile=open(filename);
+	lon, lat = [], []; 
+	depth, mag =[], [];
+	strike, dip, rake = [], [], [];
+	ifile = open(filename);
 	for line in ifile:
 		lon.append(float(line.split()[2]));
 		lat.append(float(line.split()[1]));
 		depth.append(float(line.split()[3]));
 		mag.append(float(line.split()[4]));
 		fm.append(line.split()[5]);
+		fm = line.split()[5];
+		strike.append(float(fm.split('/')[0]));
+		dip.append(float(fm.split('/')[1]));
+		rake.append(float(fm.slplit('/')[2]));
 	ifile.close();
-	MyCatalog = Catalog(dtarray=None, lon=lon, lat=lat, depth=depth, Mag=mag, fm=fm, catname='Wei_2015');
-	return MyCatalog;
+	MyCat = Catalog(dtarray=None, lon=lon, lat=lat, depth=depth, Mag=mag, strike=strike, dip=dip, rake=rake, catname='Wei_2015');
+	return MyCat;
+
+
+def read_intxt_fms(filename, catname='Intxt'):
+	# Useful for .intxt file formats, as defined in the elastic modeling code
+	print("Reading earthquake catalog from file %s " % filename);
+	ifile = open(filename,'r');
+	lon, lat = [], []; 
+	depth, mag =[], [];	
+	strike, dip, rake = [], [], [];
+	for line in ifile:
+		temp=line.split();
+		if len(temp)==0:
+			continue;
+		if temp[0]=="S:":
+			temp=line.split();
+			strike.append(float(temp[1]));
+			rake.append(float(temp[2]));
+			dip.append(float(temp[3]));
+			lon.append(float(temp[4]));
+			lat.append(float(temp[5]));
+			depth.append(float(temp[6]));
+			mag.append(float(temp[7]));
+	MyCat = Catalog(dtarray=None, lon=lon, lat=lat, strike=strike, dip=dip, rake=rake, depth=depth, Mag=mag, catname=catname);
+	ifile.close();
+	return MyCat;
 
 
 def read_usgs_website_csv(filename):
@@ -111,8 +142,8 @@ def read_usgs_website_csv(filename):
 			depth.append(float(row[3]));
 			magnitude.append(float(row[4]));
 
-	MyCat = Catalog(dtarray=dtarray, lon=longitude, lat=latitude, depth=depth, Mag=magnitude, fm=None, catname="USGS");
-	return MyCat
+	MyCat = Catalog(dtarray=dtarray, lon=longitude, lat=latitude, depth=depth, Mag=magnitude, strike=None, dip=None, rake=None, catname="USGS");
+	return MyCat;
 
 
 def read_simple_catalog_txt(filename):
@@ -122,7 +153,7 @@ def read_simple_catalog_txt(filename):
 																   'formats': ('U19', np.float, np.float, np.float, np.float)
 																   }, unpack=True);
 	dtarray = [dt.datetime.strptime(i, "%Y-%m-%d-%H-%M-%S") for i in datestrs];
-	MyCat = Catalog(dtarray=dtarray, lon=lon, lat=lat, depth=depth, Mag=Mag, fm=None, catname='');
+	MyCat = Catalog(dtarray=dtarray, lon=lon, lat=lat, depth=depth, Mag=Mag, strike=None, dip=None, rake=None, catname='');
 	return MyCat;
 
 
