@@ -2,6 +2,7 @@
 # Doing useful things
 
 import matplotlib.pyplot as plt
+import moment_calculations
 from .eqcat_object import Catalog
 
 
@@ -34,8 +35,34 @@ def restrict_cat_box(catalog, bbox):
                             new_rake.append(catalog.rake[i]);
     MyCat = Catalog(dtarray=new_dtarray, lon=new_lon, lat=new_lat, depth=new_depth, Mag=new_Mag,
                     strike=new_strike, rake=new_rake, dip=new_dip, catname=catalog.catname, bbox=bbox);
-    print("Returning %d out of %d events" % (len(MyCat.depth), len(catalog.depth)));
+    print("-->Returning %d out of %d events" % (len(MyCat.depth), len(catalog.depth)));
     return MyCat;
+
+
+def compute_total_moment(MyCat):
+    # Compute the total moment released by a seismicity catalog
+    total_moment = 0;
+    for item in MyCat.Mag:
+        moment_i = moment_calculations.moment_from_mw(item);
+        total_moment += moment_i;
+    return total_moment;
+
+
+def make_cumulative_moment(MyCat):
+    # Take a catalog
+    # Returns two arrays: time and cumulative moment
+    # They can be plotted for a cumulative moment plot
+    dt_total, mo_total = [], [];
+    adding_sum = 0;
+    dt_total.append(MyCat.dtarray[0]);
+    mo_total.append(0);
+    for i in range(len(MyCat.lon)):
+        dt_total.append(MyCat.dtarray[i]);
+        mo_total.append(adding_sum);
+        adding_sum = adding_sum + moment_calculations.moment_from_mw(MyCat.Mag[i]);
+        mo_total.append(adding_sum);
+        dt_total.append(MyCat.dtarray[i]);
+    return dt_total, mo_total;
 
 
 def make_cumulative_stack(MyCat):
