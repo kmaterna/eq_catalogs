@@ -2,7 +2,7 @@
 # Doing useful things
 
 import matplotlib.pyplot as plt
-import moment_calculations
+from Tectonic_Utils.seismo import moment_calculations
 from .eqcat_object import Catalog
 
 
