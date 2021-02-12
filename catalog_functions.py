@@ -142,3 +142,17 @@ def depth_magnitude_histograms(MyCat, outfile):
     axarr[1].tick_params(axis='both', which='major', labelsize=16);
     plt.savefig(outfile);
     return;
+
+
+def basic_map_view(MyCat, outfile):
+    plt.figure(figsize=(10, 10), dpi=300);
+    plt.scatter(MyCat.lon, MyCat.lat, s=MyCat.Mag, c=MyCat.depth, cmap='viridis_r');
+    cb = plt.colorbar();
+    cb.ax.tick_params(labelsize=14);
+    cb.set_label("Depth (km)", fontsize=16);
+    plt.title(MyCat.catname + " Catalog: %d events " % len(MyCat.lon), fontsize=20);
+    plt.gca().tick_params(axis='both', which='major', labelsize=16);
+    plt.xlabel("Longitude", fontsize=18);
+    plt.ylabel("Latitude", fontsize=18);
+    plt.savefig(outfile);
+    return;
