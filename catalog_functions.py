@@ -1,15 +1,20 @@
 # Functions that operate on earthquake catalogs
-# Doing useful things
 
-import matplotlib.pyplot as plt
 from Tectonic_Utils.seismo import moment_calculations
 from .eqcat_object import Catalog
 
 
 def restrict_cat_box(catalog, bbox):
-    # A function on earthquake catalogs
-    # Limit a catalog to the provided 6- or 8-component bounding box: [lon, lat, depth, and optionally time]
-    # losing the focal mechanisms for the moment
+    """
+    Restrict an earthquake catalog to a certain region. Not working on FMs at the moment
+
+    :param catalog: an earthquake catalog
+    :type catalog: Catalog
+    :param bbox: bounding box [lon0, lon1, lat0, lat1, depth0, depth1, optionally t1, t2]
+    :type bbox: list
+    :returns: bounded catalog
+    :rtype: Catalog
+    """
     new_dtarray = [];
     new_lon, new_lat = [], [];
     new_depth, new_Mag = [], [];
@@ -40,7 +45,14 @@ def restrict_cat_box(catalog, bbox):
 
 
 def compute_total_moment(MyCat):
-    # Compute the total moment released by a seismicity catalog
+    """
+    Compute the total moment released by a seismicity catalog
+
+    :param MyCat: an earthquake catalog
+    :type MyCat: Catalog
+    :returns: total moment in Newton-meters
+    :rtype: float
+    """
     total_moment = 0;
     for item in MyCat.Mag:
         moment_i = moment_calculations.moment_from_mw(item);
@@ -49,9 +61,14 @@ def compute_total_moment(MyCat):
 
 
 def make_cumulative_moment(MyCat):
-    # Take a catalog
-    # Returns two arrays: time and cumulative moment
-    # They can be plotted for a cumulative moment plot
+    """
+    Return time and cumulative moment (N-m) released by a seismicity catalog, as arrays, for a staircase plot
+
+    :param MyCat: an earthquake catalog
+    :type MyCat: Catalog
+    :returns: time array, total moment array
+    :rtype: list of dts, list of moments
+    """
     dt_total, mo_total = [], [];
     adding_sum = 0;
     dt_total.append(MyCat.dtarray[0]);
@@ -66,9 +83,14 @@ def make_cumulative_moment(MyCat):
 
 
 def make_cumulative_stack(MyCat):
-    # Take a catalog
-    # Returns two arrays: time and seismicity
-    # They can be plotted for a cumulative seismicity plot
+    """
+    Return time and cumulative EQ number in a seismicity catalog, as arrays, for a staircase plot
+
+    :param MyCat: an earthquake catalog
+    :type MyCat: Catalog
+    :returns: time array, EQ number array
+    :rtype: list of dts, list of number
+    """
     dt_total, eq_total = [], [];
     adding_sum = 0;
     dt_total.append(MyCat.dtarray[0]);
@@ -80,79 +102,3 @@ def make_cumulative_stack(MyCat):
         eq_total.append(adding_sum);
         dt_total.append(MyCat.dtarray[i]);
     return dt_total, eq_total;
-
-
-def make_lollipop_plot(MyCat, filename):
-    plt.figure(dpi=300, figsize=(10, 7));
-    for i in range(len(MyCat.dtarray)):
-        plt.plot(MyCat.dtarray[i], MyCat.Mag[i], marker='o', markersize=10, linewidth=0, color='black');
-        plt.plot([MyCat.dtarray[i], MyCat.dtarray[i]], [0, MyCat.Mag[i]], color='black', linewidth=1);
-    plt.ylabel('Magnitude', fontsize=20);
-    plt.xlabel('Time', fontsize=20);
-    plt.gca().tick_params(axis='both', which='major', labelsize=16)
-    plt.ylim([2.5, 5.0])
-    plt.savefig(filename);
-    return;
-
-
-def make_cumulative_plot(MyCat, outfile, ax_annotations=None):
-    # Here you can use ax_annotations to operate on the axes and give useful line annotations
-    # like major earthquakes, time boundaries, etc.
-    dt_total, eq_total = make_cumulative_stack(MyCat);
-    _ = plt.figure(figsize=(18, 9), dpi=300);
-    plt.plot_date(dt_total, eq_total, linewidth=2, linestyle='solid', marker=None, color='blue');
-    plt.gca().tick_params(axis='both', which='major', labelsize=16);
-    if ax_annotations is not None:
-        ax_annotations(plt.gca());
-    plt.xlabel("Time", fontsize=18);
-    plt.ylabel("Cumulative Earthquakes", fontsize=18);
-    plt.title("Cumulative Seismicity in %s Catalog" % MyCat.catname, fontsize=20);
-    plt.savefig(outfile);
-    return;
-
-
-def make_cumulative_plot_with_depths(MyCat, outfile, ax_annotations=None):
-    _ = plt.figure(figsize=(18, 9), dpi=300);
-    y_array = range(0, len(MyCat.dtarray));
-    plt.scatter(MyCat.dtarray, y_array, c=MyCat.depth, s=37, cmap='viridis_r');
-    cb = plt.colorbar();
-    cb.set_label("Depth (km)", fontsize=20);
-    cb.ax.tick_params(labelsize=16);
-    plt.gca().tick_params(axis='both', which='major', labelsize=16);
-    if ax_annotations is not None:
-        ax_annotations(plt.gca());
-    plt.xlabel("Time", fontsize=18);
-    plt.ylabel("Cumulative Earthquakes", fontsize=18);
-    plt.title("Cumulative Seismicity in %s Catalog" % MyCat.catname, fontsize=20);
-    plt.savefig(outfile);
-    return;
-
-
-def depth_magnitude_histograms(MyCat, outfile):
-    f, axarr = plt.subplots(1, 2, figsize=(17, 8), dpi=300);
-    axarr[0].hist(MyCat.depth);
-    axarr[0].set_xlabel('Depth (km)', fontsize=16);
-    axarr[0].set_ylabel('Number of Events', fontsize=16);
-    axarr[0].set_title('Depths in %s Catalog' % MyCat.catname, fontsize=18);
-    axarr[0].tick_params(axis='both', which='major', labelsize=16);
-    axarr[1].hist(MyCat.Mag);
-    axarr[1].set_xlabel('Magnitude (km)', fontsize=16);
-    axarr[1].set_ylabel('Number of Events', fontsize=16);
-    axarr[1].set_title('Magnitudes in %s Catalog' % MyCat.catname, fontsize=18);
-    axarr[1].tick_params(axis='both', which='major', labelsize=16);
-    plt.savefig(outfile);
-    return;
-
-
-def basic_map_view(MyCat, outfile):
-    plt.figure(figsize=(10, 10), dpi=300);
-    plt.scatter(MyCat.lon, MyCat.lat, s=MyCat.Mag, c=MyCat.depth, cmap='viridis_r');
-    cb = plt.colorbar();
-    cb.ax.tick_params(labelsize=14);
-    cb.set_label("Depth (km)", fontsize=16);
-    plt.title(MyCat.catname + " Catalog: %d events " % len(MyCat.lon), fontsize=20);
-    plt.gca().tick_params(axis='both', which='major', labelsize=16);
-    plt.xlabel("Longitude", fontsize=18);
-    plt.ylabel("Latitude", fontsize=18);
-    plt.savefig(outfile);
-    return;

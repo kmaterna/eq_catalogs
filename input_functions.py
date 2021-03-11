@@ -1,16 +1,18 @@
 # Functions to read and write various earthquake catalog formats
-# November 2020
 
 
 import numpy as np
 import datetime as dt
 import csv
 from .eqcat_object import Catalog
+import xml.etree.ElementTree as ET
 
 
 def input_qtm(filename):
-    # Designed to use the txt file format of Ross et al. (2019)'s QTM catalog
-    # downloaded from https://scedc.caltech.edu/research-tools/altcatalogs.html
+    """
+    Input the txt file format of Ross et al. (2019)'s QTM catalog
+    downloaded from https://scedc.caltech.edu/research-tools/altcatalogs.html
+    """
     print("Reading file %s " % filename);
     print(dt.datetime.now());
 
@@ -51,12 +53,11 @@ def input_qtm(filename):
 
 
 def input_shearer_cat(filename):
-    # Useful for the Shearer Yang Catalog
+    """ Read the Shearer Yang Catalog """
     print("Reading file %s " % filename);
     ifile = open(filename);
-    dtarray = [];
     latitude, longitude = [], [];
-    depth, magnitude = [], [];
+    dtarray, depth, magnitude = [], [], [];
     for line in ifile:
         temp = line.split();
         year = temp[0]
@@ -111,7 +112,7 @@ def read_Wei_2015_supplement(filename):
 
 
 def read_intxt_fms(filename, catname='Intxt'):
-    # Useful for .intxt file formats, as defined in the elastic modeling code
+    """Read focal mechanisms/rect faults from .intxt file format, as defined in the elastic modeling code"""
     print("Reading earthquake catalog from file %s " % filename);
     ifile = open(filename, 'r');
     lon, lat = [], [];
@@ -137,7 +138,7 @@ def read_intxt_fms(filename, catname='Intxt'):
 
 
 def read_usgs_website_csv(filename):
-    # When you hit the 'DOWNLOAD' button on the USGS website
+    """Read the files when you hit the 'DOWNLOAD' button on the USGS earthquakes website"""
     dtarray = [];
     lat, lon = [], [];
     depth, magnitude = [], [];
@@ -157,8 +158,40 @@ def read_usgs_website_csv(filename):
     return MyCat;
 
 
+def read_usgs_query_xml_into_MT(filename):
+    [Mrr, Mtt, Mpp, Mrt, Mrp, Mtp] = [0, 0, 0, 0, 0, 0];
+    tree = ET.parse(filename)
+    root = tree.getroot()
+    lev1 = "{http://quakeml.org/xmlns/bed/1.2}eventParameters"
+    lev2 = "{http://quakeml.org/xmlns/bed/1.2}event"
+    lev3 = "{http://quakeml.org/xmlns/bed/1.2}focalMechanism"
+    lev4 = "{http://quakeml.org/xmlns/bed/1.2}momentTensor"
+    lev5 = "{http://quakeml.org/xmlns/bed/1.2}tensor"
+    for child in root.findall('./'+lev1+'/'+lev2+'/'+lev3+'/'+lev4+'/'+lev5+"/*"):
+        value = child.tag.split('}')[1];
+        # print(value, child[0].text);
+        if value == "Mrr":
+            Mrr = float(child[0].text);
+        if value == "Mtt":
+            Mtt = float(child[0].text);
+        if value == "Mpp":
+            Mpp = float(child[0].text);
+        if value == "Mrt":
+            Mrt = float(child[0].text);
+        if value == "Mrp":
+            Mrp = float(child[0].text);
+        if value == "Mtp":
+            Mtp = float(child[0].text);
+    return [Mrr, Mtt, Mpp, Mrt, Mrp, Mtp];
+
+
+def read_SIL_catalog():
+    """Take a catalog from Iceland source"""
+    return;
+
+
 def read_simple_catalog_txt(filename):
-    # Reading a very simple .txt format for earthquake catalogs
+    """Reading a very simple .txt format for earthquake catalogs"""
     print("Reading Catalog in %s " % filename);
     [datestrs, lon, lat, depth, Mag] = np.loadtxt(filename, dtype={'names': ('datestr', 'lon', 'lat', 'depth', 'mag'),
                                                                    'formats': (
@@ -171,7 +204,7 @@ def read_simple_catalog_txt(filename):
 
 
 def write_simple_catalog_txt(MyCat, outfile):
-    # Writing a very simple .txt format for earthquake catalogs
+    """Writing a very simple .txt format for earthquake catalogs"""
     print("Writing Catalog in %s " % outfile);
     ofile = open(outfile, 'w');
     # Adding header line
