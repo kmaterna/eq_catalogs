@@ -6,6 +6,7 @@ import datetime as dt
 import csv
 from .eqcat_object import Catalog
 import xml.etree.ElementTree as ET
+import pandas
 
 
 def input_qtm(filename):
@@ -115,8 +116,7 @@ def read_intxt_fms(filename, catname='Intxt'):
     """Read focal mechanisms/rect faults from .intxt file format, as defined in the elastic modeling code"""
     print("Reading earthquake catalog from file %s " % filename);
     ifile = open(filename, 'r');
-    lon, lat = [], [];
-    depth, mag = [], [];
+    lon, lat, depth, mag = [], [], [], [];
     strike, dip, rake = [], [], [];
     for line in ifile:
         temp = line.split();
@@ -185,9 +185,18 @@ def read_usgs_query_xml_into_MT(filename):
     return [Mrr, Mtt, Mpp, Mrt, Mrp, Mtp];
 
 
-def read_SIL_catalog():
+def read_SIL_catalog(filename):
     """Take a catalog from Iceland source"""
-    return;
+    print("Reading Catalog in %s " % filename);
+    df = pandas.read_csv(filename);
+    lons = [float(x) for x in df["SIL_lon"]];
+    lats = [float(x) for x in df["SIL_lat"]];
+    depth = [float(x) for x in df["SIL_dep"]];
+    mag = [float(x) for x in df["SIL_mag"]];
+    dtarray = [dt.datetime.strptime(x, '%Y/%m/%d %H:%M:%S') for x in df["Datetime"]];
+    MyCat = Catalog(dtarray=dtarray, lon=lons, lat=lats, depth=depth, Mag=mag, strike=None, dip=None,
+                    rake=None, catname="SIL", bbox=None);
+    return MyCat;
 
 
 def read_simple_catalog_txt(filename):
@@ -216,6 +225,7 @@ def write_simple_catalog_txt(MyCat, outfile):
     else:
         bbox_string = '';
     ofile.write("# %s catalog %s\n" % (MyCat.catname, bbox_string) );
+    ofile.write("# date, lon, lat, depth, magnitude\n");
     for i in range(len(MyCat.dtarray)):
         datestr = dt.datetime.strftime(MyCat.dtarray[i], "%Y-%m-%d-%H-%M-%S");
         ofile.write("%s %f %f %.3f %.2f\n" % (datestr, MyCat.lon[i], MyCat.lat[i], MyCat.depth[i], MyCat.Mag[i]));
