@@ -49,11 +49,7 @@ def input_shearer_cat(filename):
     MyCat = [];
     for line in ifile:
         temp = line.split();
-        year = temp[0]
-        month = temp[1]
-        day = temp[2]
-        hour = temp[3]
-        minute = temp[4]
+        [year, month, day, hour, minute] = line.split()[0:5];
         second = temp[5][0:2]
         if int(second) > 59:
             print("We found a leap second at: ", year, month, day, hour, minute, second);
@@ -95,7 +91,7 @@ def read_Wei_2015_supplement(filename):
 
 
 def read_intxt_fms(filename, catname='Intxt'):
-    """Read focal mechanisms/rect faults from .intxt file format, as defined in the elastic modeling code"""
+    """Read focal mechanisms from .intxt file format, as defined in the elastic modeling code"""
     print("Reading earthquake catalog from file %s " % filename);
     ifile = open(filename, 'r');
     MyCat = [];
@@ -103,13 +99,35 @@ def read_intxt_fms(filename, catname='Intxt'):
         temp = line.split();
         if len(temp) == 0:
             continue;
-        if temp[0] == "S:":
+        if temp[0] == "Source_FM:":
             [strike, rake, dip, lon, lat, depth, mag] = [float(i) for i in line.split()[1:8]];
             myEvent = Catalog_EQ(dt=None, lon=lon, lat=lat, strike=strike, dip=dip, rake=rake, depth=depth, Mag=mag,
                                  catname=catname, bbox=None);
             MyCat.append(myEvent);
     ifile.close();
     return MyCat;
+
+
+def write_intxt_fms(MyCat, filename, mu=30e9, lame1=30e9):
+    """Write a catalog into focal mechanism format, as described in the elastic modeling code"""
+    print("Writing earthquake catalog into file %s " % filename);
+    ofile = open(filename, 'w');
+    # Adding header line
+    if MyCat[0].bbox is not None:
+        bbox_string = ' within '+str(MyCat[0].bbox[0])+'/'+str(MyCat[0].bbox[1])+'/' +\
+                      str(MyCat[0].bbox[2])+'/'+str(MyCat[0].bbox[3])+'/'+str(MyCat[0].bbox[4])+'/' +\
+                      str(MyCat[0].bbox[5])+'/'+dt.datetime.strftime(MyCat[0].bbox[6], "%Y%m%d")+'/' +\
+                      dt.datetime.strftime(MyCat[0].bbox[7], "%Y%m%d");
+    else:
+        bbox_string = '';
+    ofile.write("# %s catalog %s\n" % (MyCat[0].catname, bbox_string) );
+    for item in MyCat:
+        if not item.strike:
+            continue;
+        ofile.write("Source_FM: %f %f %f %f %f %f %f %f %f\n" % (item.strike, item.rake, item.dip, item.lon, item.lat,
+                                                                 item.depth, item.Mag, mu, lame1));
+    ofile.close();
+    return;
 
 
 def read_usgs_website_csv(filename):
@@ -125,7 +143,6 @@ def read_usgs_website_csv(filename):
             lon = float(row[2]);
             depth = float(row[3]);
             magnitude = float(row[4]);
-
             myEvent = Catalog_EQ(dt=dtobj, lon=lon, lat=lat, depth=depth, Mag=magnitude, strike=None, dip=None,
                                  rake=None, catname="USGS", bbox=None);
             MyCat.append(myEvent);
@@ -134,6 +151,7 @@ def read_usgs_website_csv(filename):
 
 def read_usgs_query_xml_into_MT(filename):
     [Mrr, Mtt, Mpp, Mrt, Mrp, Mtp] = [0, 0, 0, 0, 0, 0];
+    [strike, rake, dip, strike2, rake2, dip2] = [0, 0, 0, 0, 0, 0];
     tree = ET.parse(filename)
     root = tree.getroot()
     lev1 = "{http://quakeml.org/xmlns/bed/1.2}eventParameters"
@@ -156,7 +174,26 @@ def read_usgs_query_xml_into_MT(filename):
             Mrp = float(child[0].text);
         if value == "Mtp":
             Mtp = float(child[0].text);
-    return [Mrr, Mtt, Mpp, Mrt, Mrp, Mtp];
+    lev4 = "{http://quakeml.org/xmlns/bed/1.2}nodalPlanes"
+    lev5 = "{http://quakeml.org/xmlns/bed/1.2}nodalPlane1"
+    for child in root.findall('./'+lev1+'/'+lev2+'/'+lev3+'/'+lev4+'/'+lev5+"/*"):
+        value = child.tag.split('}')[1];
+        if value == "strike":
+            strike = float(child[0].text);
+        if value == "dip":
+            dip = float(child[0].text);
+        if value == "rake":
+            rake = float(child[0].text);
+    lev5 = "{http://quakeml.org/xmlns/bed/1.2}nodalPlane2"
+    for child in root.findall('./'+lev1+'/'+lev2+'/'+lev3+'/'+lev4+'/'+lev5+"/*"):
+        value = child.tag.split('}')[1];
+        if value == "strike":
+            strike2 = float(child[0].text);
+        if value == "dip":
+            dip2 = float(child[0].text);
+        if value == "rake":
+            rake2 = float(child[0].text);
+    return [Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, strike, dip, rake, strike2, dip2, rake2];
 
 
 def read_SIL_catalog(filename):
@@ -174,6 +211,28 @@ def read_SIL_catalog(filename):
                              dip=None, rake=None, catname="SIL", bbox=None);
         MyCat.append(myEvent);
     return MyCat;
+
+
+def read_associated_MT_file(filename):
+    # A special catalog for the Iceland case: time, magnitude, and xml file (a manually created lookup table)
+    print("Reading associated mt file %s " % filename);
+    myCat = [];
+    ifile = open(filename);
+    for line in ifile:
+        if line.split()[0] == "#":
+            continue;
+        else:
+            dtstr = line.split()[0];
+            dtobj = dt.datetime.strptime(dtstr, "%Y-%m-%d-%H-%M-%S");
+            mag = float(line.split()[1]);
+            mt_xml_file = line.split()[2];
+            # Depends on which plane you want to take (shouldn't make difference)
+            [_, _, _, _, _, _, _, _, _, strike, dip, rake] = read_usgs_query_xml_into_MT(mt_xml_file);
+            myEvent = Catalog_EQ(dt=dtobj, lon=None, lat=None, depth=None, Mag=mag, strike=strike,
+                                 dip=dip, rake=rake, catname="", bbox=None);
+            myCat.append(myEvent);
+    ifile.close();
+    return myCat;
 
 
 def read_simple_catalog_txt(filename):

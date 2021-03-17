@@ -90,7 +90,7 @@ def make_cumulative_stack(MyCat):
     return dt_total, eq_total;
 
 
-def combine_two_catalogs_hstack(Cat1, Cat2, CatKeys):
+def combine_two_catalogs_hstack(Cat1, Cat2, merging_function):
     """
     Take two catalogs and stitch them together, taking some attributes from one catalog and some from the other.
     Somewhat unintuitive function.
@@ -100,11 +100,19 @@ def combine_two_catalogs_hstack(Cat1, Cat2, CatKeys):
 
     :param Cat1: catalog
     :param Cat2: catalog
-    :param CatKeys: a dictionary
+    :param merging_function: specific merging function on two earthquake objects (depends on each project)
     :return: Catalog
     """
-
+    print("Combining elements of two catalogs...")
     MyCat = [];
+    cat2_dts = [item.dt for item in Cat2];
+    for item in Cat1:
+        if item.dt in cat2_dts:
+            idx2 = cat2_dts.index(item.dt);
+            new_eq = merging_function(item, Cat2[idx2]);
+            MyCat.append(new_eq);
+        else:
+            MyCat.append(item);
     return MyCat;
 
 
