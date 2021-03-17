@@ -1,7 +1,7 @@
 # Functions that operate on earthquake catalogs
 
 from Tectonic_Utils.seismo import moment_calculations
-from .eqcat_object import Catalog
+from .eqcat_object import Catalog_EQ
 
 
 def restrict_cat_box(catalog, bbox):
@@ -15,32 +15,18 @@ def restrict_cat_box(catalog, bbox):
     :returns: bounded catalog
     :rtype: Catalog
     """
-    new_dtarray = [];
-    new_lon, new_lat = [], [];
-    new_depth, new_Mag = [], [];
-    new_strike, new_dip, new_rake = [], [], [];
     print("Restricting catalog to box ", bbox)
-    for i in range(len(catalog.dtarray)):
-        if bbox[0] <= catalog.lon[i] <= bbox[1]:
-            if bbox[2] <= catalog.lat[i] <= bbox[3]:
-                if bbox[4] <= catalog.depth[i] <= bbox[5]:
-                    if bbox[6] <= catalog.dtarray[i] <= bbox[7]:
-                        new_dtarray.append(catalog.dtarray[i]);
-                        new_lon.append(catalog.lon[i]);
-                        new_lat.append(catalog.lat[i]);
-                        new_depth.append(catalog.depth[i]);
-                        new_Mag.append(catalog.Mag[i]);
-                        if catalog.strike is None:
-                            new_strike = None;
-                            new_dip = None;
-                            new_rake = None;
-                        else:
-                            new_strike.append(catalog.strike[i]);
-                            new_dip.append(catalog.dip[i]);
-                            new_rake.append(catalog.rake[i]);
-    MyCat = Catalog(dtarray=new_dtarray, lon=new_lon, lat=new_lat, depth=new_depth, Mag=new_Mag,
-                    strike=new_strike, rake=new_rake, dip=new_dip, catname=catalog.catname, bbox=bbox);
-    print("-->Returning %d out of %d events" % (len(MyCat.depth), len(catalog.depth)));
+    MyCat = [];
+    for item in catalog:
+        if bbox[0] <= item.lon <= bbox[1]:
+            if bbox[2] <= item.lat <= bbox[3]:
+                if bbox[4] <= item.depth <= bbox[5]:
+                    if bbox[6] <= item.dt <= bbox[7]:
+                        new_Event = Catalog_EQ(dt=item.dt, lon=item.lon, lat=item.lat, depth=item.depth, Mag=item.Mag,
+                                               strike=item.strike, rake=item.rake, dip=item.dip, catname=item.catname,
+                                               bbox=bbox);
+                        MyCat.append(new_Event);
+    print("-->Returning %d out of %d events" % (len(MyCat), len(catalog)));
     return MyCat;
 
 
@@ -54,8 +40,8 @@ def compute_total_moment(MyCat):
     :rtype: float
     """
     total_moment = 0;
-    for item in MyCat.Mag:
-        moment_i = moment_calculations.moment_from_mw(item);
+    for item in MyCat:
+        moment_i = moment_calculations.moment_from_mw(item.Mag);
         total_moment += moment_i;
     return total_moment;
 
@@ -71,14 +57,14 @@ def make_cumulative_moment(MyCat):
     """
     dt_total, mo_total = [], [];
     adding_sum = 0;
-    dt_total.append(MyCat.dtarray[0]);
+    dt_total.append(MyCat[0].dt);
     mo_total.append(0);
-    for i in range(len(MyCat.lon)):
-        dt_total.append(MyCat.dtarray[i]);
+    for item in MyCat:
+        dt_total.append(item.dt);
         mo_total.append(adding_sum);
-        adding_sum = adding_sum + moment_calculations.moment_from_mw(MyCat.Mag[i]);
+        adding_sum = adding_sum + moment_calculations.moment_from_mw(item.Mag);
         mo_total.append(adding_sum);
-        dt_total.append(MyCat.dtarray[i]);
+        dt_total.append(item.dt);
     return dt_total, mo_total;
 
 
@@ -95,10 +81,46 @@ def make_cumulative_stack(MyCat):
     adding_sum = 0;
     dt_total.append(MyCat.dtarray[0]);
     eq_total.append(0);
-    for i in range(len(MyCat.lon)):
-        dt_total.append(MyCat.dtarray[i]);
+    for item in MyCat:
+        dt_total.append(item.dt);
         eq_total.append(adding_sum);
         adding_sum = adding_sum + 1;
         eq_total.append(adding_sum);
-        dt_total.append(MyCat.dtarray[i]);
+        dt_total.append(item.dt);
     return dt_total, eq_total;
+
+
+def combine_two_catalogs_hstack(Cat1, Cat2, CatKeys):
+    """
+    Take two catalogs and stitch them together, taking some attributes from one catalog and some from the other.
+    Somewhat unintuitive function.
+    This function is most useful when moment tensors come from one catalog (i.e., USGS)
+    and locations come from another (i.e., local).
+    This function is more like the union of a 'set'.
+
+    :param Cat1: catalog
+    :param Cat2: catalog
+    :param CatKeys: a dictionary
+    :return: Catalog
+    """
+
+    MyCat = [];
+    return MyCat;
+
+
+def combine_two_catalogs_vstack(Cat1, Cat2):
+    """
+    Take two catalogs (assumed to be from compatible sources) and append them into a single catalog.
+    This is the simplest "combining catalogs" function.
+
+    :param Cat1: Catalog
+    :param Cat2: Catalog
+    :return: combined catalog
+    :rtype: Catalog
+    """
+    combined_Cat = [];
+    for item in Cat1:
+        combined_Cat.append(item);
+    for item in Cat2:
+        combined_Cat.append(item);
+    return combined_Cat;
