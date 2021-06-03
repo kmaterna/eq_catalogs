@@ -64,7 +64,7 @@ def input_shearer_cat(filename):
         eqdate = dt.datetime.strptime(year + " " + month + " " + day + " " + hour + " " + minute + " " + second,
                                       "%Y %m %d %H %M %S");
         myEvent = Catalog_EQ(dt=eqdate, lon=float(temp[8]), lat=float(temp[7]), depth=float(temp[9]),
-                             magnitude=float(temp[10]), strike=None, dip=None, rake=None, catname="Shearer", bbox=None);
+                             Mag=float(temp[10]), strike=None, dip=None, rake=None, catname="Shearer", bbox=None);
         MyCat.append(myEvent);
     ifile.close();
     return MyCat;

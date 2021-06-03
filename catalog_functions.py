@@ -79,7 +79,7 @@ def make_cumulative_stack(MyCat):
     """
     dt_total, eq_total = [], [];
     adding_sum = 0;
-    dt_total.append(MyCat.dtarray[0]);
+    dt_total.append(MyCat[0].dt);
     eq_total.append(0);
     for item in MyCat:
         dt_total.append(item.dt);
