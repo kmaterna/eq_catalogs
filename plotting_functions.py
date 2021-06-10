@@ -21,6 +21,22 @@ def make_lollipop_plot(MyCat, filename):
     return;
 
 
+def make_seismicity_rate_plot(dtarray, rates, filename, date_boundaries=None):
+    plt.figure(dpi=300, figsize=(12, 7));
+    plt.plot(dtarray, rates, linewidth=3);
+    plt.xlabel('Time', fontsize=20);
+    plt.ylabel('Average Seismicity Rate (Earthquakes/Day)', fontsize=20);
+    if date_boundaries:   # optional annotations
+        [bottom, top] = plt.gca().get_ylim();
+        for time in date_boundaries:
+            plt.plot([time, time], [bottom, top], '--k');
+    plt.gca().set_ylim([0, 120]);
+    plt.gca().tick_params(axis='both', which='major', labelsize=16)
+    plt.savefig(filename);
+    print("Plotting %s " % filename);
+    return;
+
+
 def make_cumulative_plot(MyCat, outfile, ax_annotations=None):
     """
     Here you can use ax_annotations to operate on the axes and give useful line annotations

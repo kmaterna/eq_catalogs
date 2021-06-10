@@ -2,6 +2,7 @@
 
 from Tectonic_Utils.seismo import moment_calculations
 from .eqcat_object import Catalog_EQ
+import datetime as dt
 
 
 def restrict_cat_box(catalog, bbox):
@@ -88,6 +89,35 @@ def make_cumulative_stack(MyCat):
         eq_total.append(adding_sum);
         dt_total.append(item.dt);
     return dt_total, eq_total;
+
+
+def make_simple_seismicity_rates(MyCat, window=5):
+    """
+    Reduce a catalog into a time array and an array of earthquakes/day, averaged over a certain window.
+    :param MyCat: an earthquake catalog
+    :type MyCat: Catalog
+    :param window: number of days
+    :type window: int
+    :return: time series of events
+    """
+    dtarray_eqs = [item.dt for item in MyCat];
+    start_time = min(dtarray_eqs);
+    target_time = start_time;
+    end_time = max(dtarray_eqs);
+    boundary_times = [start_time];
+    while target_time < end_time:
+        target_time = target_time + dt.timedelta(days=window);
+        boundary_times.append(target_time);
+    boundary_times.append(end_time);
+
+    # Find the earthquakes between each boundary time
+    dtarray_rates, rates = [], [];   # will have the same dimension
+    for i in range(0, len(boundary_times)-1):
+        dtarray_rates.append(boundary_times[i] + dt.timedelta(days=window/2));  # the center of the bin
+        bin_eqs = [date for date in dtarray_eqs if boundary_times[i] <= date < boundary_times[i+1]];   # num eqs in bin
+        rates.append(len(bin_eqs) / window);  # rates in eq/day
+
+    return dtarray_rates, rates;
 
 
 def combine_two_catalogs_hstack(Cat1, Cat2, merging_function):
