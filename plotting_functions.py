@@ -2,6 +2,7 @@
 
 from . import catalog_functions
 import matplotlib.pyplot as plt
+import datetime as dt
 from Tectonic_Utils.seismo import moment_calculations
 
 
@@ -34,6 +35,17 @@ def make_seismicity_rate_plot(dtarray, rates, filename, date_boundaries=None):
     plt.gca().tick_params(axis='both', which='major', labelsize=16)
     plt.savefig(filename);
     print("Plotting %s " % filename);
+    return;
+
+def write_seismicity_rates(dtarray, rates, filename):
+    print("Writing %s " % filename);
+    ofile = open(filename, 'w');
+    window = dtarray[1] - dtarray[0];
+    window = window.days;
+    ofile.write("# Center_Date Num_EQs_per_day Window_Days\n");
+    for i in range(len(dtarray)):
+        ofile.write("%s %d %d\n" % (dt.datetime.strftime(dtarray[i], '%Y%m%d'), rates[i], window));
+    ofile.close();
     return;
 
 

@@ -240,7 +240,7 @@ def read_simple_catalog_txt(filename):
     print("Reading Catalog in %s " % filename);
     [datestrs, lon, lat, depth, Mag] = np.loadtxt(filename, dtype={'names': ('datestr', 'lon', 'lat', 'depth', 'mag'),
                                                                    'formats': (
-                                                                       'U19', np.float, np.float, np.float, np.float)},
+                                                                       'U19', float, float, float, float)},
                                                   unpack=True, skiprows=1);
     dtarray = [dt.datetime.strptime(i, "%Y-%m-%d-%H-%M-%S") for i in datestrs];
     MyCat = [];
@@ -270,3 +270,18 @@ def write_simple_catalog_txt(MyCat, outfile):
         ofile.write("%s %f %f %.3f %.2f\n" % (datestr, item.lon, item.lat, item.depth, item.Mag));
     ofile.close();
     return;
+
+
+# ---------- READ EARTHQUKE RATES --------------
+def read_earthquake_rates(infile):
+    # Matching the format of write_seismicity_rates() in plotting_functions.
+    print("Reading %s " % infile);
+    dtarray, rates = [], [];
+    ifile = open(infile, 'r');
+    for line in ifile:
+        if line.split()[0] == "#":
+            continue;
+        else:
+            dtarray.append(dt.datetime.strptime(line.split()[0], "%Y%m%d"));
+            rates.append(float(line.split()[1]));
+    return [dtarray, rates];
