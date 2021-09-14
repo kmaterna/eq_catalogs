@@ -31,6 +31,25 @@ def restrict_cat_box(catalog, bbox):
     return MyCat;
 
 
+def restrict_above_Mc(totalCat, Mc):
+    """
+    Restrict an earthquake catalog to above a certain magnitude. Not working on FMs at the moment
+
+    :param totalCat: an earthquake catalog
+    :type totalCat: Catalog
+    :param Mc: minimum magnitude
+    :type Mc: float
+    :returns: catalog
+    :rtype: Catalog
+    """
+    print("Restricting catalog to above Mc ", Mc);
+    MyCat = [];
+    for item in totalCat:
+        if item.Mag >= Mc:
+            MyCat.append(item);
+    return MyCat;
+
+
 def compute_total_moment(MyCat):
     """
     Compute the total moment released by a seismicity catalog
