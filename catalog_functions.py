@@ -16,6 +16,11 @@ def restrict_cat_box(catalog, bbox):
     :returns: bounded catalog
     :rtype: Catalog
     """
+    if len(bbox) == 6:
+        # If times are not specified, then we keep time bounds of the original catalog.
+        dtarray = [eq.dt for eq in catalog];
+        bbox.append(min(dtarray));
+        bbox.append(max(dtarray));
     print("Restricting catalog to box ", bbox)
     MyCat = [];
     for item in catalog:

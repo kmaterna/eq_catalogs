@@ -6,7 +6,7 @@ import datetime as dt
 from Tectonic_Utils.seismo import moment_calculations
 
 
-def make_lollipop_plot(MyCat, filename):
+def make_lollipop_plot(MyCat, filename, lower_mag=2.5, upper_mag=5.0):
     """
     A plot of event magnitude versus time. Looks like lollipops.
     """
@@ -17,8 +17,9 @@ def make_lollipop_plot(MyCat, filename):
     plt.ylabel('Magnitude', fontsize=20);
     plt.xlabel('Time', fontsize=20);
     plt.gca().tick_params(axis='both', which='major', labelsize=16)
-    plt.ylim([2.5, 5.0])
-    plt.savefig(filename);
+    plt.ylim([lower_mag, upper_mag])
+    plt.xticks(rotation=45)
+    plt.savefig(filename, bbox_inches='tight');
     return;
 
 
