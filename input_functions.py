@@ -39,12 +39,12 @@ def input_qtm(filename):
         MyCat.append(myEvent);
     print("done at : ", dt.datetime.now());
     ifile.close();
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
 
 
 def input_shearer_cat(filename):
     """ Read the Shearer Yang Catalog """
-    print("Reading file %s " % filename);
     ifile = open(filename);
     MyCat = [];
     for line in ifile:
@@ -67,11 +67,11 @@ def input_shearer_cat(filename):
                              Mag=float(temp[10]), strike=None, dip=None, rake=None, catname="Shearer", bbox=None);
         MyCat.append(myEvent);
     ifile.close();
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
 
 
 def read_Wei_2015_supplement(filename):
-    print("Reading earthquake catalog from file %s " % filename)
     MyCat = [];
     ifile = open(filename);
     for line in ifile:
@@ -86,6 +86,7 @@ def read_Wei_2015_supplement(filename):
         myEvent = Catalog_EQ(dt=None, lon=lon, lat=lat, depth=depth, Mag=mag, strike=strike, dip=dip, rake=rake,
                              catname='Wei_2015', bbox=None);
         MyCat.append(myEvent);
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     ifile.close();
     return MyCat;
 
@@ -105,6 +106,7 @@ def read_intxt_fms(filename, catname='Intxt'):
                                  catname=catname, bbox=None);
             MyCat.append(myEvent);
     ifile.close();
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
 
 
@@ -146,6 +148,30 @@ def read_usgs_website_csv(filename):
             myEvent = Catalog_EQ(dt=dtobj, lon=lon, lat=lat, depth=depth, Mag=magnitude, strike=None, dip=None,
                                  rake=None, catname="USGS", bbox=None);
             MyCat.append(myEvent);
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
+    return MyCat;
+
+
+def read_scsn_txt(filename):
+    """
+    Read catalog search queries from Southern California Seismic Network
+    https://service.scedc.caltech.edu/eq-catalogs/date_mag_loc.php
+    """
+    MyCat = [];
+    ifile = open(filename, 'r');
+    for line in ifile:
+        if len(line.split()) == 13 and line[0] != '#':
+            temp = line.split();
+            dtobj = dt.datetime.strptime(temp[0]+"T"+temp[1].split('.')[0], "%Y/%m/%dT%H:%M:%S");
+            lat = float(temp[6]);
+            lon = float(temp[7]);
+            depth = float(temp[8]);
+            magnitude = float(temp[4]);
+            myEvent = Catalog_EQ(dt=dtobj, lon=lon, lat=lat, depth=depth, Mag=magnitude, strike=None, dip=None,
+                                 rake=None, catname="SCSN", bbox=None);
+            MyCat.append(myEvent);
+    ifile.close();
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
 
 
@@ -198,7 +224,6 @@ def read_usgs_query_xml_into_MT(filename):
 
 def read_SIL_catalog(filename):
     """Take a catalog from Iceland source"""
-    print("Reading Catalog in %s " % filename);
     df = pandas.read_csv(filename);
     lons = [float(x) for x in df["SIL_lon"]];
     lats = [float(x) for x in df["SIL_lat"]];
@@ -210,6 +235,7 @@ def read_SIL_catalog(filename):
         myEvent = Catalog_EQ(dt=dtarray[i], lon=lons[i], lat=lats[i], depth=depth[i], Mag=mag[i], strike=None,
                              dip=None, rake=None, catname="SIL", bbox=None);
         MyCat.append(myEvent);
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
 
 
@@ -248,6 +274,7 @@ def read_simple_catalog_txt(filename):
         myEvent = Catalog_EQ(dt=dtarray[i], lon=lon[i], lat=lat[i], depth=depth[i], Mag=Mag[i], strike=None,
                              dip=None, rake=None, catname="", bbox=None);
         MyCat.append(myEvent);
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
 
 

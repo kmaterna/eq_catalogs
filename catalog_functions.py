@@ -11,17 +11,23 @@ def restrict_cat_box(catalog, bbox):
 
     :param catalog: an earthquake catalog
     :type catalog: Catalog
-    :param bbox: bounding box [lon0, lon1, lat0, lat1, depth0, depth1, optionally t1, t2]
+    :param bbox: bounding box [lon0, lon1, lat0, lat1, depth0, depth1, optionally t1, t2].  t1/t2 could also be None.
     :type bbox: list
     :returns: bounded catalog
     :rtype: Catalog
     """
+    print("Restricting catalog to box ", bbox)
     if len(bbox) == 6:
         # If times are not specified, then we keep time bounds of the original catalog.
         dtarray = [eq.dt for eq in catalog];
         bbox.append(min(dtarray));
         bbox.append(max(dtarray));
-    print("Restricting catalog to box ", bbox)
+    else:   # if time is not specified because t1 or t2 are None:
+        dtarray = [eq.dt for eq in catalog];
+        if bbox[6] is None:
+            bbox[6] = min(dtarray);
+        if bbox[7] is None:
+            bbox[7] = max(dtarray);
     MyCat = [];
     for item in catalog:
         if bbox[0] <= item.lon <= bbox[1]:
@@ -186,3 +192,25 @@ def combine_two_catalogs_vstack(Cat1, Cat2):
     for item in Cat2:
         combined_Cat.append(item);
     return combined_Cat;
+
+
+def get_start_stop_time(mycat):
+    """
+    Return the start and stop time of a catalog of earthquakes.
+    :param mycat: catalog of earthquake events.  It may have a bbox element.
+    :return: start (datetime), end (datetime)
+    """
+    dtarray = [eq.dt for eq in mycat];
+    if mycat[0].bbox is None:   # no official bbox provided
+        starttime = min(dtarray);
+        endtime = max(dtarray);
+    else:   # bbox provided
+        if mycat[0].bbox[6] is None:
+            starttime = min(dtarray);
+        else:
+            starttime = mycat[0].bbox[6];
+        if mycat[0].bbox[7] is None:
+            endtime = max(dtarray);
+        else:
+            endtime = mycat[0].bbox[7];
+    return starttime, endtime;
