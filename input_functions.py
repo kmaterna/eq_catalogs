@@ -299,6 +299,26 @@ def write_simple_catalog_txt(MyCat, outfile):
     return;
 
 
+def write_location_catalog_txt(MyCat, outfile):
+    """Writing a very simple .txt format for earthquake catalogs"""
+    print("Writing Catalog in %s " % outfile);
+    ofile = open(outfile, 'w');
+    # Adding header line
+    if MyCat[0].bbox is not None:
+        bbox_string = ' within '+str(MyCat[0].bbox[0])+'/'+str(MyCat[0].bbox[1])+'/' +\
+                      str(MyCat[0].bbox[2])+'/'+str(MyCat[0].bbox[3])+'/'+str(MyCat[0].bbox[4])+'/' +\
+                      str(MyCat[0].bbox[5])+'/'+dt.datetime.strftime(MyCat[0].bbox[6], "%Y%m%d")+'/' +\
+                      dt.datetime.strftime(MyCat[0].bbox[7], "%Y%m%d");
+    else:
+        bbox_string = '';
+    ofile.write("# %s catalog %s\n" % (MyCat[0].catname, bbox_string) );
+    ofile.write("# lon, lat\n");
+    for item in MyCat:
+        ofile.write("%f %f\n" % (item.lon, item.lat));
+    ofile.close();
+    return;
+
+
 # ---------- READ EARTHQUKE RATES --------------
 def read_earthquake_rates(infile):
     # Matching the format of write_seismicity_rates() in plotting_functions.

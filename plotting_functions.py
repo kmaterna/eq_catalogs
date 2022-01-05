@@ -91,18 +91,19 @@ def make_cumulative_plot_with_depths(MyCat, outfile, ax_annotations=None):
 def depth_magnitude_histograms(MyCat, outfile):
     """Two side-by-side histograms of depth and magnitude of the catalog."""
     f, axarr = plt.subplots(1, 2, figsize=(17, 8), dpi=300);
+    fontsize = 30
     depths = [i.depth for i in MyCat];
     mags = [i.Mag for i in MyCat];
     axarr[0].hist(depths);
-    axarr[0].set_xlabel('Depth (km)', fontsize=16);
-    axarr[0].set_ylabel('Number of Events', fontsize=16);
-    axarr[0].set_title('Depths in %s Catalog' % MyCat[0].catname, fontsize=18);
-    axarr[0].tick_params(axis='both', which='major', labelsize=16);
+    axarr[0].set_xlabel('Depth (km)', fontsize=fontsize);
+    axarr[0].set_ylabel('Number of Events', fontsize=fontsize);
+    axarr[0].set_title('Depths in %s Catalog' % MyCat[0].catname, fontsize=fontsize);
+    axarr[0].tick_params(axis='both', which='major', labelsize=fontsize);
     axarr[1].hist(mags);
-    axarr[1].set_xlabel('Magnitude', fontsize=16);
-    axarr[1].set_ylabel('Number of Events', fontsize=16);
-    axarr[1].set_title('Magnitudes in %s Catalog' % MyCat[0].catname, fontsize=18);
-    axarr[1].tick_params(axis='both', which='major', labelsize=16);
+    axarr[1].set_xlabel('Magnitude', fontsize=fontsize);
+    axarr[1].set_ylabel('Number of Events', fontsize=fontsize);
+    axarr[1].set_title('Magnitudes in %s Catalog' % MyCat[0].catname, fontsize=fontsize);
+    axarr[1].tick_params(axis='both', which='major', labelsize=fontsize);
     plt.savefig(outfile);
     return;
 
