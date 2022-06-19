@@ -116,13 +116,13 @@ def write_intxt_fms(MyCat, filename, mu=30e9, lame1=30e9):
     ofile = open(filename, 'w');
     # Adding header line
     if MyCat[0].bbox is not None:
-        bbox_string = ' within '+str(MyCat[0].bbox[0])+'/'+str(MyCat[0].bbox[1])+'/' +\
-                      str(MyCat[0].bbox[2])+'/'+str(MyCat[0].bbox[3])+'/'+str(MyCat[0].bbox[4])+'/' +\
-                      str(MyCat[0].bbox[5])+'/'+dt.datetime.strftime(MyCat[0].bbox[6], "%Y%m%d")+'/' +\
+        bbox_string = ' within ' + str(MyCat[0].bbox[0]) + '/' + str(MyCat[0].bbox[1]) + '/' + \
+                      str(MyCat[0].bbox[2]) + '/' + str(MyCat[0].bbox[3]) + '/' + str(MyCat[0].bbox[4]) + '/' + \
+                      str(MyCat[0].bbox[5]) + '/' + dt.datetime.strftime(MyCat[0].bbox[6], "%Y%m%d") + '/' + \
                       dt.datetime.strftime(MyCat[0].bbox[7], "%Y%m%d");
     else:
         bbox_string = '';
-    ofile.write("# %s catalog %s\n" % (MyCat[0].catname, bbox_string) );
+    ofile.write("# %s catalog %s\n" % (MyCat[0].catname, bbox_string));
     for item in MyCat:
         if not item.strike:
             continue;
@@ -162,7 +162,7 @@ def read_scsn_txt(filename):
     for line in ifile:
         if len(line.split()) == 13 and line[0] != '#':
             temp = line.split();
-            dtobj = dt.datetime.strptime(temp[0]+"T"+temp[1].split('.')[0], "%Y/%m/%dT%H:%M:%S");
+            dtobj = dt.datetime.strptime(temp[0] + "T" + temp[1].split('.')[0], "%Y/%m/%dT%H:%M:%S");
             lat = float(temp[6]);
             lon = float(temp[7]);
             depth = float(temp[8]);
@@ -185,7 +185,7 @@ def read_usgs_query_xml_into_MT(filename):
     lev3 = "{http://quakeml.org/xmlns/bed/1.2}focalMechanism"
     lev4 = "{http://quakeml.org/xmlns/bed/1.2}momentTensor"
     lev5 = "{http://quakeml.org/xmlns/bed/1.2}tensor"
-    for child in root.findall('./'+lev1+'/'+lev2+'/'+lev3+'/'+lev4+'/'+lev5+"/*"):
+    for child in root.findall('./' + lev1 + '/' + lev2 + '/' + lev3 + '/' + lev4 + '/' + lev5 + "/*"):
         value = child.tag.split('}')[1];
         # print(value, child[0].text);
         if value == "Mrr":
@@ -202,7 +202,7 @@ def read_usgs_query_xml_into_MT(filename):
             Mtp = float(child[0].text);
     lev4 = "{http://quakeml.org/xmlns/bed/1.2}nodalPlanes"
     lev5 = "{http://quakeml.org/xmlns/bed/1.2}nodalPlane1"
-    for child in root.findall('./'+lev1+'/'+lev2+'/'+lev3+'/'+lev4+'/'+lev5+"/*"):
+    for child in root.findall('./' + lev1 + '/' + lev2 + '/' + lev3 + '/' + lev4 + '/' + lev5 + "/*"):
         value = child.tag.split('}')[1];
         if value == "strike":
             strike = float(child[0].text);
@@ -211,7 +211,7 @@ def read_usgs_query_xml_into_MT(filename):
         if value == "rake":
             rake = float(child[0].text);
     lev5 = "{http://quakeml.org/xmlns/bed/1.2}nodalPlane2"
-    for child in root.findall('./'+lev1+'/'+lev2+'/'+lev3+'/'+lev4+'/'+lev5+"/*"):
+    for child in root.findall('./' + lev1 + '/' + lev2 + '/' + lev3 + '/' + lev4 + '/' + lev5 + "/*"):
         value = child.tag.split('}')[1];
         if value == "strike":
             strike2 = float(child[0].text);
@@ -278,19 +278,100 @@ def read_simple_catalog_txt(filename):
     return MyCat;
 
 
+def read_wech(filename):
+    start = 0;
+    MyCat = [];
+    ifile = open(filename, 'r');
+    for line in ifile:
+        temp = line.split();
+        if 'yyyy-mm-dd' in line or 'DateTime' in line:  # If the header is still inside.
+            start = 1;
+            continue;
+        if len(temp) == 5:  # If we've removed the header already.
+            start = 1;
+        if start == 1 and len(temp) > 0:
+            onedate = dt.datetime.strptime(temp[0] + ' ' + temp[1].split('.')[0], "%Y-%m-%d %H:%M:%S");
+            myEvent = Catalog_EQ(dt=onedate, lon=float(temp[3]), lat=float(temp[2]), depth=np.nan, Mag=np.nan,
+                                 strike=None, dip=None, rake=None, catname="", bbox=None);
+            MyCat.append(myEvent);
+        if len(MyCat) == 180000:
+            break;
+    ifile.close();
+    print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
+    return MyCat;
+
+
+def read_wech_custom(filename):
+    MyCat = [];
+    start = 0;
+    ifile = open(filename, 'r');
+    for line in ifile:
+        temp = line.split();
+        if 'DateTime' in line:  # If the header is still inside.
+            start = 1;
+            continue;
+        if len(temp) == 5:  # If we've removed the header already.
+            start = 1;
+        if start == 1 and len(temp) > 0:
+            onedt = dt.datetime.strptime(temp[0] + ' ' + temp[1].split('.')[0], "%Y-%m-%d %H:%M:%S");
+            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=np.nan, Mag=np.nan,
+                                 strike=None, dip=None, rake=None, catname="", bbox=None);
+            MyCat.append(myEvent);
+        if len(MyCat) == 180000:
+            break;
+    ifile.close();
+    print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
+    return MyCat;
+
+
+def read_ide_tremor(filename):
+    MyCat = [];
+    ifile = open(filename, 'r');
+    for line in ifile:
+        temp = line.split(',');
+        if len(temp) > 1:
+            onedt = dt.datetime.strptime(temp[0] + ' ' + temp[1], "%Y-%m-%d %H:%M:%S");
+            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=np.nan, Mag=np.nan,
+                                 strike=None, dip=None, rake=None, catname="", bbox=None);
+            MyCat.append(myEvent)
+    ifile.close();
+    print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
+    return MyCat;
+
+
+def read_pnsn052019_file(filename):
+    MyCat = [];
+    ifile = open(filename, 'r');
+    ifile.readline();
+    for line in ifile:
+        temp = line.split(',');
+        if len(temp) <= 2:
+            continue;
+        if temp[0] == 'lat':
+            continue;
+        onedt = dt.datetime.strptime(temp[3], " %Y-%m-%d %H:%M:%S ");
+        myEvent = Catalog_EQ(dt=onedt, lon=float(temp[1]), lat=float(temp[0]), depth=np.nan, Mag=np.nan,
+                             strike=None, dip=None, rake=None, catname="", bbox=None);
+        MyCat.append(myEvent);
+    ifile.close();
+    return MyCat;
+
+
+# ---------- WRITE EARTHQUAKE CATALOGS --------------
+
 def write_simple_catalog_txt(MyCat, outfile):
     """Writing a very simple .txt format for earthquake catalogs"""
     print("Writing Catalog in %s " % outfile);
     ofile = open(outfile, 'w');
     # Adding header line
     if MyCat[0].bbox is not None:
-        bbox_string = ' within '+str(MyCat[0].bbox[0])+'/'+str(MyCat[0].bbox[1])+'/' +\
-                      str(MyCat[0].bbox[2])+'/'+str(MyCat[0].bbox[3])+'/'+str(MyCat[0].bbox[4])+'/' +\
-                      str(MyCat[0].bbox[5])+'/'+dt.datetime.strftime(MyCat[0].bbox[6], "%Y%m%d")+'/' +\
+        bbox_string = ' within ' + str(MyCat[0].bbox[0]) + '/' + str(MyCat[0].bbox[1]) + '/' + \
+                      str(MyCat[0].bbox[2]) + '/' + str(MyCat[0].bbox[3]) + '/' + str(MyCat[0].bbox[4]) + '/' + \
+                      str(MyCat[0].bbox[5]) + '/' + dt.datetime.strftime(MyCat[0].bbox[6], "%Y%m%d") + '/' + \
                       dt.datetime.strftime(MyCat[0].bbox[7], "%Y%m%d");
     else:
         bbox_string = '';
-    ofile.write("# %s catalog %s\n" % (MyCat[0].catname, bbox_string) );
+    ofile.write("# %s catalog %s\n" % (MyCat[0].catname, bbox_string));
     ofile.write("# date, lon, lat, depth, magnitude\n");
     for item in MyCat:
         datestr = dt.datetime.strftime(item.dt, "%Y-%m-%d-%H-%M-%S");
@@ -305,13 +386,13 @@ def write_location_catalog_txt(MyCat, outfile):
     ofile = open(outfile, 'w');
     # Adding header line
     if MyCat[0].bbox is not None:
-        bbox_string = ' within '+str(MyCat[0].bbox[0])+'/'+str(MyCat[0].bbox[1])+'/' +\
-                      str(MyCat[0].bbox[2])+'/'+str(MyCat[0].bbox[3])+'/'+str(MyCat[0].bbox[4])+'/' +\
-                      str(MyCat[0].bbox[5])+'/'+dt.datetime.strftime(MyCat[0].bbox[6], "%Y%m%d")+'/' +\
+        bbox_string = ' within ' + str(MyCat[0].bbox[0]) + '/' + str(MyCat[0].bbox[1]) + '/' + \
+                      str(MyCat[0].bbox[2]) + '/' + str(MyCat[0].bbox[3]) + '/' + str(MyCat[0].bbox[4]) + '/' + \
+                      str(MyCat[0].bbox[5]) + '/' + dt.datetime.strftime(MyCat[0].bbox[6], "%Y%m%d") + '/' + \
                       dt.datetime.strftime(MyCat[0].bbox[7], "%Y%m%d");
     else:
         bbox_string = '';
-    ofile.write("# %s catalog %s\n" % (MyCat[0].catname, bbox_string) );
+    ofile.write("# %s catalog %s\n" % (MyCat[0].catname, bbox_string));
     ofile.write("# lon, lat\n");
     for item in MyCat:
         ofile.write("%f %f\n" % (item.lon, item.lat));
@@ -319,7 +400,7 @@ def write_location_catalog_txt(MyCat, outfile):
     return;
 
 
-# ---------- READ EARTHQUKE RATES --------------
+# ---------- READ EARTHQUAKE RATES --------------
 def read_earthquake_rates(infile):
     # Matching the format of write_seismicity_rates() in plotting_functions.
     print("Reading %s " % infile);
