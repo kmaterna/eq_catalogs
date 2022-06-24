@@ -3,6 +3,7 @@
 from Tectonic_Utils.seismo import moment_calculations
 from .eqcat_object import Catalog_EQ
 import datetime as dt
+import numpy as np
 
 
 def restrict_cat_box(catalog, bbox):
@@ -124,6 +125,7 @@ def make_cumulative_stack(MyCat):
 def make_simple_seismicity_rates(MyCat, window=5):
     """
     Reduce a catalog into a time array and an array of earthquakes/day, averaged over a certain window.
+
     :param MyCat: an earthquake catalog
     :type MyCat: Catalog
     :param window: number of days
@@ -197,6 +199,7 @@ def combine_two_catalogs_vstack(Cat1, Cat2):
 def get_start_stop_time(mycat):
     """
     Return the start and stop time of a catalog of earthquakes.
+
     :param mycat: catalog of earthquake events.  It may have a bbox element.
     :return: start (datetime), end (datetime)
     """
@@ -214,3 +217,24 @@ def get_start_stop_time(mycat):
         else:
             endtime = mycat[0].bbox[7];
     return starttime, endtime;
+
+
+def compute_spatial_density(eqcat, bounds, spacing_x, spacing_y):
+    """
+    Compute a 2D array of spatial density of earthquakes in a catalog
+
+    :param eqcat: catalog of earthquakes
+    :param bounds: a bounding box [W, E, S, N, top, bottom]
+    :param spacing_x: float
+    :param spacing_y: float
+    :return: xarray (1d array), yarray (1d array), density (2d array)
+    """
+    xarray = np.arange(bounds[0], bounds[1], spacing_x);
+    yarray = np.arange(bounds[2], bounds[3], spacing_y);
+    density = np.zeros([len(yarray), len(xarray)]);
+    for i in range(len(yarray)):
+        for j in range(len(xarray)):
+            box_interest = [xarray[j], xarray[j]+spacing_x, yarray[i], yarray[i]+spacing_y, bounds[4], bounds[5]];
+            restricted = restrict_cat_box(eqcat, box_interest);
+            density[i][j] = len(restricted);
+    return xarray, yarray, density;

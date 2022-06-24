@@ -291,7 +291,7 @@ def read_wech(filename):
             start = 1;
         if start == 1 and len(temp) > 0:
             onedate = dt.datetime.strptime(temp[0] + ' ' + temp[1].split('.')[0], "%Y-%m-%d %H:%M:%S");
-            myEvent = Catalog_EQ(dt=onedate, lon=float(temp[3]), lat=float(temp[2]), depth=np.nan, Mag=np.nan,
+            myEvent = Catalog_EQ(dt=onedate, lon=float(temp[3]), lat=float(temp[2]), depth=None, Mag=None,
                                  strike=None, dip=None, rake=None, catname="", bbox=None);
             MyCat.append(myEvent);
         if len(MyCat) == 180000:
@@ -314,7 +314,7 @@ def read_wech_custom(filename):
             start = 1;
         if start == 1 and len(temp) > 0:
             onedt = dt.datetime.strptime(temp[0] + ' ' + temp[1].split('.')[0], "%Y-%m-%d %H:%M:%S");
-            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=np.nan, Mag=np.nan,
+            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=None, Mag=None,
                                  strike=None, dip=None, rake=None, catname="", bbox=None);
             MyCat.append(myEvent);
         if len(MyCat) == 180000:
@@ -331,7 +331,7 @@ def read_ide_tremor(filename):
         temp = line.split(',');
         if len(temp) > 1:
             onedt = dt.datetime.strptime(temp[0] + ' ' + temp[1], "%Y-%m-%d %H:%M:%S");
-            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=np.nan, Mag=np.nan,
+            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=None, Mag=None,
                                  strike=None, dip=None, rake=None, catname="", bbox=None);
             MyCat.append(myEvent)
     ifile.close();
@@ -350,10 +350,11 @@ def read_pnsn052019_file(filename):
         if temp[0] == 'lat':
             continue;
         onedt = dt.datetime.strptime(temp[3], " %Y-%m-%d %H:%M:%S ");
-        myEvent = Catalog_EQ(dt=onedt, lon=float(temp[1]), lat=float(temp[0]), depth=np.nan, Mag=np.nan,
+        myEvent = Catalog_EQ(dt=onedt, lon=float(temp[1]), lat=float(temp[0]), depth=0, Mag=None,
                              strike=None, dip=None, rake=None, catname="", bbox=None);
         MyCat.append(myEvent);
     ifile.close();
+    print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
     return MyCat;
 
 
