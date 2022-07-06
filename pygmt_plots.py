@@ -3,14 +3,16 @@ import pygmt
 import datetime as dt
 from . import catalog_functions
 
-def simple_pygmt_map(mycat, filename, legendfile=None, scalelength=1, cbar_interval=1.0, map_frame_int=0.05):
+def simple_pygmt_map(mycat, filename, legendfile=None, scalelength=1, cbar_interval=1.0, map_frame_int=0.05,
+                     region=None, symbolscale=0.14):
     """A basic pygmt plot for earthquake catalogs, color-coded by depth and size-coded by magnitude."""
     lons = [eq.lon for eq in mycat];
     lats = [eq.lat for eq in mycat];
     depths = [eq.depth for eq in mycat];
-    mags = [0.14*eq.Mag for eq in mycat];  # scaling for symbol size
+    mags = [symbolscale*eq.Mag for eq in mycat];  # scaling for symbol size
 
-    region = [min(lons), max(lons), min(lats), max(lats)];
+    if region is None:
+        region = [min(lons), max(lons), min(lats), max(lats)];
     pygmt.makecpt(cmap="turbo", series=str(min(depths)) + "/" + str(max(depths)) + "/"+str(0.1),
                   output="mycpt.cpt", background=True);
     proj = "M7i"
