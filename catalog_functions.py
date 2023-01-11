@@ -54,7 +54,7 @@ def restrict_above_Mc(totalCat, Mc):
     :returns: catalog
     :rtype: Catalog
     """
-    print("Restricting catalog to above Mc ", Mc);
+    print("Restricting catalog to above Mc", Mc);
     MyCat = [];
     for item in totalCat:
         if item.Mag >= Mc:

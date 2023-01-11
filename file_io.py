@@ -362,7 +362,7 @@ def read_pnsn052019_file(filename):
 
 def write_simple_catalog_txt(MyCat, outfile):
     """Writing a very simple .txt format for earthquake catalogs"""
-    print("Writing Catalog in %s " % outfile);
+    print("Writing Catalog of length %d in %s " % (len(MyCat), outfile));
     ofile = open(outfile, 'w');
     # Adding header line
     if MyCat[0].bbox is not None:
@@ -383,7 +383,7 @@ def write_simple_catalog_txt(MyCat, outfile):
 
 def write_location_catalog_txt(MyCat, outfile):
     """Writing a very simple .txt format for earthquake catalogs"""
-    print("Writing Catalog in %s " % outfile);
+    print("Writing Catalog of length %d in %s " % (len(MyCat), outfile));
     ofile = open(outfile, 'w');
     # Adding header line
     if MyCat[0].bbox is not None:
@@ -403,7 +403,7 @@ def write_location_catalog_txt(MyCat, outfile):
 
 # ---------- READ EARTHQUAKE RATES --------------
 def read_earthquake_rates(infile):
-    # Matching the format of write_seismicity_rates() in plotting_functions.
+    # Matching the format of write_seismicity_rates().
     print("Reading %s " % infile);
     dtarray, rates = [], [];
     ifile = open(infile, 'r');
@@ -414,3 +414,15 @@ def read_earthquake_rates(infile):
             dtarray.append(dt.datetime.strptime(line.split()[0], "%Y%m%d"));
             rates.append(float(line.split()[1]));
     return [dtarray, rates];
+
+
+def write_seismicity_rates(dtarray, rates, filename):
+    print("Writing %s " % filename);
+    ofile = open(filename, 'w');
+    window = dtarray[1] - dtarray[0];
+    window = window.days;
+    ofile.write("# Center_Date Num_EQs_per_day Window_Days\n");
+    for i in range(len(dtarray)):
+        ofile.write("%s %d %d\n" % (dt.datetime.strftime(dtarray[i], '%Y%m%d'), rates[i], window));
+    ofile.close();
+    return;

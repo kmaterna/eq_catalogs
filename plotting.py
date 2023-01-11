@@ -2,28 +2,31 @@
 
 from . import catalog_functions
 import matplotlib.pyplot as plt
-import datetime as dt
 from Tectonic_Utils.seismo import moment_calculations
 
 
-def make_lollipop_plot(MyCat, filename, lower_mag=2.5, upper_mag=5.0):
+def plot_lollipop(MyCat, filename, lower_mag=2.5, upper_mag=5.0):
     """
     A plot of event magnitude versus time. Looks like lollipops.
     """
+    print("Plotting figure %s " % filename);
     plt.figure(dpi=300, figsize=(10, 7));
+    plt.text(0.66, 0.96, s="%s events between %.2f<M<%.2f" % (len(MyCat), lower_mag, upper_mag),
+             transform=plt.gca().transAxes, bbox=dict(boxstyle="round", fc="0.8"));
     for item in MyCat:
         plt.plot(item.dt, item.Mag, marker='o', markersize=10, linewidth=0, color='black');
         plt.plot([item.dt, item.dt], [0, item.Mag], color='black', linewidth=1);
     plt.ylabel('Magnitude', fontsize=20);
     plt.xlabel('Time', fontsize=20);
     plt.gca().tick_params(axis='both', which='major', labelsize=16)
-    plt.ylim([lower_mag, upper_mag])
+    plt.ylim([lower_mag, upper_mag+0.05])
     plt.xticks(rotation=45)
     plt.savefig(filename, bbox_inches='tight');
     return;
 
 
-def make_seismicity_rate_plot(dtarray, rates, filename, date_boundaries=None):
+def plot_seismicity_rate(dtarray, rates, filename, date_boundaries=None):
+    print("Plotting figure %s " % filename);
     plt.figure(dpi=300, figsize=(12, 7));
     plt.plot(dtarray, rates, linewidth=3);
     plt.xlabel('Time', fontsize=20);
@@ -35,26 +38,15 @@ def make_seismicity_rate_plot(dtarray, rates, filename, date_boundaries=None):
     plt.gca().set_ylim([0, 120]);
     plt.gca().tick_params(axis='both', which='major', labelsize=16)
     plt.savefig(filename);
-    print("Plotting %s " % filename);
-    return;
-
-def write_seismicity_rates(dtarray, rates, filename):
-    print("Writing %s " % filename);
-    ofile = open(filename, 'w');
-    window = dtarray[1] - dtarray[0];
-    window = window.days;
-    ofile.write("# Center_Date Num_EQs_per_day Window_Days\n");
-    for i in range(len(dtarray)):
-        ofile.write("%s %d %d\n" % (dt.datetime.strftime(dtarray[i], '%Y%m%d'), rates[i], window));
-    ofile.close();
     return;
 
 
-def make_cumulative_plot(MyCat, outfile, ax_annotations=None):
+def plot_cumulative_eqs(MyCat, outfile, ax_annotations=None):
     """
     Here you can use ax_annotations to operate on the axes and give useful line annotations
     like major earthquakes, time boundaries, etc.
     """
+    print("Plotting figure %s " % outfile);
     dt_total, eq_total = catalog_functions.make_cumulative_stack(MyCat);
     _ = plt.figure(figsize=(18, 9), dpi=300);
     plt.plot_date(dt_total, eq_total, linewidth=2, linestyle='solid', marker=None, color='blue');
@@ -68,8 +60,9 @@ def make_cumulative_plot(MyCat, outfile, ax_annotations=None):
     return;
 
 
-def make_cumulative_plot_with_depths(MyCat, outfile, ax_annotations=None):
+def plot_cumulative_eqs_with_depths(MyCat, outfile, ax_annotations=None):
     """Same as previous plotting function, but with dots color coded by depth. """
+    print("Plotting figure %s " % outfile);
     _ = plt.figure(figsize=(18, 9), dpi=300);
     y_array = range(0, len(MyCat));
     dtarray = [item.dt for item in MyCat];
@@ -90,6 +83,7 @@ def make_cumulative_plot_with_depths(MyCat, outfile, ax_annotations=None):
 
 def depth_magnitude_histograms(MyCat, outfile):
     """Two side-by-side histograms of depth and magnitude of the catalog."""
+    print("Plotting figure %s " % outfile);
     f, axarr = plt.subplots(1, 2, figsize=(17, 8), dpi=300);
     fontsize = 30
     depths = [i.depth for i in MyCat];
@@ -108,11 +102,12 @@ def depth_magnitude_histograms(MyCat, outfile):
     return;
 
 
-def map_seismicity_catalog(MyCat, outfile, ax_annotations=None):
+def map_seismicity(MyCat, outfile, ax_annotations=None):
     """
     A general function for mapping a seismicity catalog in lat/lon space
     Additional information can be passed in with the ax_annotations function
     """
+    print("Plotting figure %s " % outfile);
     plt.figure(figsize=(14, 12), dpi=300);
     lons = [i.lon for i in MyCat];
     lats = [i.lat for i in MyCat];
