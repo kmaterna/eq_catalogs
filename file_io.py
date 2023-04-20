@@ -34,8 +34,7 @@ def input_qtm(filename):
             print("You may have a problem at: ");
             print(year + month + day + hour + minute);
             newdate = dt.datetime.strptime(year + month + day + hour, "%Y%m%d%H");
-        myEvent = Catalog_EQ(dt=newdate, lon=lon, lat=lat, depth=depth, Mag=mag, strike=None, dip=None, rake=None,
-                             catname="QTM", bbox=None);
+        myEvent = Catalog_EQ(dt=newdate, lon=lon, lat=lat, depth=depth, Mag=mag, catname="QTM");
         MyCat.append(myEvent);
     print("done at : ", dt.datetime.now());
     ifile.close();
@@ -64,7 +63,7 @@ def input_shearer_cat(filename):
         eqdate = dt.datetime.strptime(year + " " + month + " " + day + " " + hour + " " + minute + " " + second,
                                       "%Y %m %d %H %M %S");
         myEvent = Catalog_EQ(dt=eqdate, lon=float(temp[8]), lat=float(temp[7]), depth=float(temp[9]),
-                             Mag=float(temp[10]), strike=None, dip=None, rake=None, catname="Shearer", bbox=None);
+                             Mag=float(temp[10]), catname="Shearer");
         MyCat.append(myEvent);
     ifile.close();
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
@@ -84,7 +83,7 @@ def read_Wei_2015_supplement(filename):
         dip = float(fm.split('/')[1]);
         rake = float(fm.split('/')[2]);
         myEvent = Catalog_EQ(dt=None, lon=lon, lat=lat, depth=depth, Mag=mag, strike=strike, dip=dip, rake=rake,
-                             catname='Wei_2015', bbox=None);
+                             catname='Wei_2015');
         MyCat.append(myEvent);
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     ifile.close();
@@ -103,7 +102,7 @@ def read_intxt_fms(filename, catname='Intxt'):
         if temp[0] == "Source_FM:":
             [strike, rake, dip, lon, lat, depth, mag] = [float(i) for i in line.split()[1:8]];
             myEvent = Catalog_EQ(dt=None, lon=lon, lat=lat, strike=strike, dip=dip, rake=rake, depth=depth, Mag=mag,
-                                 catname=catname, bbox=None);
+                                 catname=catname);
             MyCat.append(myEvent);
     ifile.close();
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
@@ -145,8 +144,7 @@ def read_usgs_website_csv(filename):
             lon = float(row[2]);
             depth = float(row[3]);
             magnitude = float(row[4]);
-            myEvent = Catalog_EQ(dt=dtobj, lon=lon, lat=lat, depth=depth, Mag=magnitude, strike=None, dip=None,
-                                 rake=None, catname="USGS", bbox=None);
+            myEvent = Catalog_EQ(dt=dtobj, lon=lon, lat=lat, depth=depth, Mag=magnitude, catname="USGS");
             MyCat.append(myEvent);
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
@@ -167,8 +165,7 @@ def read_scsn_txt(filename):
             lon = float(temp[7]);
             depth = float(temp[8]);
             magnitude = float(temp[4]);
-            myEvent = Catalog_EQ(dt=dtobj, lon=lon, lat=lat, depth=depth, Mag=magnitude, strike=None, dip=None,
-                                 rake=None, catname="SCSN", bbox=None);
+            myEvent = Catalog_EQ(dt=dtobj, lon=lon, lat=lat, depth=depth, Mag=magnitude, catname="SCSN");
             MyCat.append(myEvent);
     ifile.close();
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
@@ -232,8 +229,7 @@ def read_SIL_catalog(filename):
     dtarray = [dt.datetime.strptime(x, '%Y/%m/%d %H:%M:%S') for x in df["Datetime"]];
     MyCat = [];
     for i in range(len(dtarray)):
-        myEvent = Catalog_EQ(dt=dtarray[i], lon=lons[i], lat=lats[i], depth=depth[i], Mag=mag[i], strike=None,
-                             dip=None, rake=None, catname="SIL", bbox=None);
+        myEvent = Catalog_EQ(dt=dtarray[i], lon=lons[i], lat=lats[i], depth=depth[i], Mag=mag[i], catname="SIL");
         MyCat.append(myEvent);
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
@@ -255,7 +251,7 @@ def read_associated_MT_file(filename):
             # Depends on which plane you want to take (shouldn't make difference)
             [_, _, _, _, _, _, _, _, _, strike, dip, rake] = read_usgs_query_xml_into_MT(mt_xml_file);
             myEvent = Catalog_EQ(dt=dtobj, lon=None, lat=None, depth=None, Mag=mag, strike=strike,
-                                 dip=dip, rake=rake, catname="", bbox=None);
+                                 dip=dip, rake=rake);
             myCat.append(myEvent);
     ifile.close();
     return myCat;
@@ -271,8 +267,7 @@ def read_simple_catalog_txt(filename):
     dtarray = [dt.datetime.strptime(i, "%Y-%m-%d-%H-%M-%S") for i in datestrs];
     MyCat = [];
     for i in range(len(dtarray)):
-        myEvent = Catalog_EQ(dt=dtarray[i], lon=lon[i], lat=lat[i], depth=depth[i], Mag=Mag[i], strike=None,
-                             dip=None, rake=None, catname="", bbox=None);
+        myEvent = Catalog_EQ(dt=dtarray[i], lon=lon[i], lat=lat[i], depth=depth[i], Mag=Mag[i]);
         MyCat.append(myEvent);
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     return MyCat;
@@ -291,8 +286,7 @@ def read_wech(filename):
             start = 1;
         if start == 1 and len(temp) > 0:
             onedate = dt.datetime.strptime(temp[0] + ' ' + temp[1].split('.')[0], "%Y-%m-%d %H:%M:%S");
-            myEvent = Catalog_EQ(dt=onedate, lon=float(temp[3]), lat=float(temp[2]), depth=None, Mag=None,
-                                 strike=None, dip=None, rake=None, catname="", bbox=None);
+            myEvent = Catalog_EQ(dt=onedate, lon=float(temp[3]), lat=float(temp[2]), depth=None, Mag=None);
             MyCat.append(myEvent);
         if len(MyCat) == 180000:
             break;
@@ -314,8 +308,7 @@ def read_wech_custom(filename):
             start = 1;
         if start == 1 and len(temp) > 0:
             onedt = dt.datetime.strptime(temp[0] + ' ' + temp[1].split('.')[0], "%Y-%m-%d %H:%M:%S");
-            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=None, Mag=None,
-                                 strike=None, dip=None, rake=None, catname="", bbox=None);
+            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=None, Mag=None);
             MyCat.append(myEvent);
         if len(MyCat) == 180000:
             break;
@@ -331,8 +324,7 @@ def read_ide_tremor(filename):
         temp = line.split(',');
         if len(temp) > 1:
             onedt = dt.datetime.strptime(temp[0] + ' ' + temp[1], "%Y-%m-%d %H:%M:%S");
-            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=None, Mag=None,
-                                 strike=None, dip=None, rake=None, catname="", bbox=None);
+            myEvent = Catalog_EQ(dt=onedt, lon=float(temp[2]), lat=float(temp[3]), depth=None, Mag=None);
             MyCat.append(myEvent)
     ifile.close();
     print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
@@ -350,8 +342,7 @@ def read_pnsn052019_file(filename):
         if temp[0] == 'lat':
             continue;
         onedt = dt.datetime.strptime(temp[3], " %Y-%m-%d %H:%M:%S ");
-        myEvent = Catalog_EQ(dt=onedt, lon=float(temp[1]), lat=float(temp[0]), depth=0, Mag=None,
-                             strike=None, dip=None, rake=None, catname="", bbox=None);
+        myEvent = Catalog_EQ(dt=onedt, lon=float(temp[1]), lat=float(temp[0]), depth=0, Mag=None);
         MyCat.append(myEvent);
     ifile.close();
     print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
