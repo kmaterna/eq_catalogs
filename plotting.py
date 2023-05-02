@@ -13,9 +13,11 @@ def plot_lollipop(MyCat, filename, lower_mag=2.5, upper_mag=5.0):
     plt.figure(dpi=300, figsize=(10, 7));
     plt.text(0.66, 0.96, s="%s events between %.2f<M<%.2f" % (len(MyCat), lower_mag, upper_mag),
              transform=plt.gca().transAxes, bbox=dict(boxstyle="round", fc="0.8"));
+    times = [item.dt for item in MyCat];
+    Mags = [item.Mag for item in MyCat];
+    plt.plot(times, Mags, marker='o', markersize=10, linewidth=0, color='black');
     for item in MyCat:
-        plt.plot(item.dt, item.Mag, marker='o', markersize=10, linewidth=0, color='black');
-        plt.plot([item.dt, item.dt], [0, item.Mag], color='black', linewidth=1);
+        plt.plot([item.dt, item.dt], [0, item.Mag], color='black', linewidth=0.3);
     plt.ylabel('Magnitude', fontsize=20);
     plt.xlabel('Time', fontsize=20);
     plt.gca().tick_params(axis='both', which='major', labelsize=16)

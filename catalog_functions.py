@@ -31,14 +31,10 @@ def restrict_cat_box(catalog, bbox):
             bbox[7] = max(dtarray);
     MyCat = [];
     for item in catalog:
-        if bbox[0] <= item.lon <= bbox[1]:
-            if bbox[2] <= item.lat <= bbox[3]:
-                if bbox[4] <= item.depth <= bbox[5]:
-                    if bbox[6] <= item.dt <= bbox[7]:
-                        new_Event = Catalog_EQ(dt=item.dt, lon=item.lon, lat=item.lat, depth=item.depth, Mag=item.Mag,
-                                               strike=item.strike, rake=item.rake, dip=item.dip, catname=item.catname,
-                                               bbox=bbox);
-                        MyCat.append(new_Event);
+        if item.is_within_bbox(bbox):
+            new_Event = Catalog_EQ(dt=item.dt, lon=item.lon, lat=item.lat, depth=item.depth, Mag=item.Mag,
+                                   strike=item.strike, rake=item.rake, dip=item.dip, catname=item.catname, bbox=bbox);
+            MyCat.append(new_Event);
     print("-->Returning %d out of %d events" % (len(MyCat), len(catalog)));
     return MyCat;
 
