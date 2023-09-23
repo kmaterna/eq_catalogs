@@ -39,6 +39,21 @@ def restrict_cat_box(catalog, bbox):
     return MyCat;
 
 
+def restrict_cat_times(catalog, starttime, endtime):
+    """
+    :param catalog: list of eq items
+    :param starttime: dt object
+    :param endtime:  dt object
+    :return: list of eq items
+    """
+    MyCat = [];
+    for item in catalog:
+        if item.is_within_bbox(starttime, endtime):
+            MyCat.append(item);
+    print("-->Returning %d out of %d events" % (len(MyCat), len(catalog)));
+    return MyCat;
+
+
 def restrict_above_Mc(totalCat, Mc):
     """
     Restrict an earthquake catalog to above a certain magnitude. Not working on FMs at the moment

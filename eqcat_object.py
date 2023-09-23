@@ -27,3 +27,9 @@ class Catalog_EQ:
                     if bbox[6] <= self.dt <= bbox[7]:
                         return 1;
         return 0;
+
+    def is_within_times(self, starttime, endtime):
+        if starttime <= self.dt <= endtime:
+            return 1;
+        else:
+            return 0;
