@@ -1,7 +1,6 @@
 
 import pygmt
 import datetime as dt
-from . import catalog_functions
 
 def simple_pygmt_map(mycat, filename, legendfile=None, scalelength=1, cbar_interval=1.0, map_frame_int=0.05,
                      region=None, symbolscale=0.14, faultfile=None, textfile=None):
@@ -24,7 +23,7 @@ def simple_pygmt_map(mycat, filename, legendfile=None, scalelength=1, cbar_inter
     fig.plot(x=lons, y=lats, fill=depths, size=mags, style='c', cmap="mycpt.cpt", pen="thin,black");  # earthquakes
     fig.colorbar(position="jBr+w3.5i/0.2i+o3.5c/1.5c+h", cmap="mycpt.cpt",
                  frame=["x" + str(cbar_interval), "y+L\"Depth (km)\""]);
-    starttime, endtime = catalog_functions.get_start_stop_time(mycat);
+    starttime, endtime = mycat.get_start_stop_time();
     startstr = dt.datetime.strftime(starttime, "%Y-%m-%d");
     endstr = dt.datetime.strftime(endtime, "%Y-%m-%d");
     fig.text(text=startstr + " to " + endstr + ", "+str(len(mycat))+" events", position='TR',

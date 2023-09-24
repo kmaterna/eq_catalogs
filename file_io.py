@@ -4,7 +4,7 @@
 import numpy as np
 import datetime as dt
 import csv
-from .eqcat_object import Catalog_EQ
+from .eqcat_object import Catalog_EQ, Catalog
 import xml.etree.ElementTree as ET
 import pandas
 
@@ -39,7 +39,7 @@ def input_qtm(filename):
     print("done at : ", dt.datetime.now());
     ifile.close();
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def input_shearer_cat(filename):
@@ -67,7 +67,7 @@ def input_shearer_cat(filename):
         MyCat.append(myEvent);
     ifile.close();
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def read_Wei_2015_supplement(filename):
@@ -87,7 +87,7 @@ def read_Wei_2015_supplement(filename):
         MyCat.append(myEvent);
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
     ifile.close();
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def read_intxt_fms(filename, catname='Intxt'):
@@ -106,7 +106,7 @@ def read_intxt_fms(filename, catname='Intxt'):
             MyCat.append(myEvent);
     ifile.close();
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def write_intxt_fms(MyCat, filename, mu=30e9, lame1=30e9):
@@ -146,8 +146,9 @@ def read_usgs_website_csv(filename):
             magnitude = float(row[4]);
             myEvent = Catalog_EQ(dt=dtobj, lon=lon, lat=lat, depth=depth, Mag=magnitude, catname="USGS");
             MyCat.append(myEvent);
-    print("Reading %d catalog events from file %s " % (len(MyCat), filename));
-    return MyCat;
+    catalog = Catalog(MyCat);
+    print("Reading %d catalog events from file %s " % (len(catalog), filename));
+    return catalog;
 
 
 def read_scsn_txt(filename):
@@ -169,7 +170,7 @@ def read_scsn_txt(filename):
             MyCat.append(myEvent);
     ifile.close();
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def read_usgs_query_xml_into_MT(filename):
@@ -232,7 +233,7 @@ def read_SIL_catalog(filename):
         myEvent = Catalog_EQ(dt=dtarray[i], lon=lons[i], lat=lats[i], depth=depth[i], Mag=mag[i], catname="SIL");
         MyCat.append(myEvent);
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def read_associated_MT_file(filename):
@@ -254,7 +255,7 @@ def read_associated_MT_file(filename):
                                  dip=dip, rake=rake);
             myCat.append(myEvent);
     ifile.close();
-    return myCat;
+    return Catalog(myCat);
 
 
 def read_simple_catalog_txt(filename):
@@ -270,7 +271,7 @@ def read_simple_catalog_txt(filename):
         myEvent = Catalog_EQ(dt=dtarray[i], lon=lon[i], lat=lat[i], depth=depth[i], Mag=Mag[i]);
         MyCat.append(myEvent);
     print("Reading %d catalog events from file %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def read_wech(filename):
@@ -292,7 +293,7 @@ def read_wech(filename):
             break;
     ifile.close();
     print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def read_wech_custom(filename):
@@ -314,7 +315,7 @@ def read_wech_custom(filename):
             break;
     ifile.close();
     print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def read_ide_tremor(filename):
@@ -328,7 +329,7 @@ def read_ide_tremor(filename):
             MyCat.append(myEvent)
     ifile.close();
     print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 def read_pnsn052019_file(filename):
@@ -346,7 +347,7 @@ def read_pnsn052019_file(filename):
         MyCat.append(myEvent);
     ifile.close();
     print("Successfully read %d tremor counts from %s " % (len(MyCat), filename));
-    return MyCat;
+    return Catalog(MyCat);
 
 
 # ---------- WRITE EARTHQUAKE CATALOGS --------------
