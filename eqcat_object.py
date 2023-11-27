@@ -68,7 +68,7 @@ class Catalog:
             if item.is_within_bbox(starttime, endtime):
                 MyCat.append(item)
         newCat = Catalog(MyCat)
-        print("-->Returning %d out of %d events" % (len(newCat), len(self.catalog)))
+        print(f"-->Returning {len(newCat)} out of {len(self.catalog)} events")
         return newCat
 
     def restrict_above_Mc(self, Mc):
@@ -116,7 +116,7 @@ class Catalog:
                                        bbox=bbox)
                 MyCat.append(new_Event)
         newCat = Catalog(MyCat)
-        print("-->Returning %d out of %d events" % (len(self.catalog), len(newCat)))
+        print(f"-->Returning {len(newCat)} out of {len(self.catalog)} events")
         return newCat
 
     def compute_total_moment(self):
@@ -142,6 +142,17 @@ class Catalog:
         starttime = min(dtarray)
         endtime = max(dtarray)
         return starttime, endtime
+
+    def get_bounding_box(self):
+        """
+        Return the bounding box associated with a catalog of earthquakes.
+
+        :return: bounding box [W, E, S, N]
+        """
+        lons = [eq.lon for eq in self.catalog]
+        lats = [eq.lat for eq in self.catalog]
+        bbox = [min(lons), max(lons), min(lats), max(lats)]
+        return bbox
 
     def make_cumulative_moment(self):
         """
