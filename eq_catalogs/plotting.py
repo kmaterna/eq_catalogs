@@ -134,10 +134,10 @@ def write_catalog_total_moments(MyCat, outputfile):
     """
     Moment = MyCat.compute_total_moment()
     Mw_total = moment_calculations.mw_from_moment(Moment)
-    print("Total Moment Equivalent (Mw) from %d events: %f" % (len(MyCat), Mw_total) )
+    print("Total Moment Equivalent (Mw) from %d events: %f" % (len(MyCat), Mw_total))
     ofile = open(outputfile, 'w')
     M_total_str = "{:.2e}".format(Moment)
-    ofile.write("Total Moment from %d events: %s N-m\n" % (len(MyCat), M_total_str) )
-    ofile.write("Total Moment Equivalent (Mw) from %d events: %f\n" % (len(MyCat), Mw_total) )
+    ofile.write("Total Moment from %d events: %s N-m\n" % (len(MyCat), M_total_str))
+    ofile.write("Total Moment Equivalent (Mw) from %d events: %f\n" % (len(MyCat), Mw_total))
     ofile.close()
     return

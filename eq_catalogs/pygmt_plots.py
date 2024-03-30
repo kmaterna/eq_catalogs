@@ -3,13 +3,14 @@ import pygmt
 import numpy as np
 import datetime as dt
 
+
 def listify_catalog_attributes(mycat):
     lons = np.array([eq.lon for eq in mycat])
     lats = np.array([eq.lat for eq in mycat])
     depths = np.array([eq.depth for eq in mycat])
     mags = np.array([eq.Mag for eq in mycat])
     times = np.array([eq.dt for eq in mycat])
-    return lons, lats, depths, mags, times;
+    return lons, lats, depths, mags, times
 
 
 def simple_pygmt_map(mycat, filename, legendfile=None, scalelength=1, cbar_interval=1.0, map_frame_int=0.05,

@@ -5,7 +5,7 @@ import numpy as np
 import datetime as dt
 import csv
 from .eqcat_object import Catalog_EQ, Catalog
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as et
 import pandas
 
 
@@ -176,7 +176,7 @@ def read_scsn_txt(filename):
 def read_usgs_query_xml_into_MT(filename):
     [Mrr, Mtt, Mpp, Mrt, Mrp, Mtp] = [0, 0, 0, 0, 0, 0]
     [strike, rake, dip, strike2, rake2, dip2] = [0, 0, 0, 0, 0, 0]
-    tree = ET.parse(filename)
+    tree = et.parse(filename)
     root = tree.getroot()
     lev1 = "{http://quakeml.org/xmlns/bed/1.2}eventParameters"
     lev2 = "{http://quakeml.org/xmlns/bed/1.2}event"

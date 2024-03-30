@@ -4,6 +4,7 @@ The earthquake catalog format. Each of these fields are single values; a catalog
 from Tectonic_Utils.seismo import moment_calculations
 import datetime as dt
 
+
 class Catalog_EQ:
     def __init__(self, dt, lon, lat, depth, Mag, strike=None, dip=None, rake=None, catname='', bbox=None):
         self.dt = dt

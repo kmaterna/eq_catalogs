@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 def combine_two_catalogs_hstack(Cat1, Cat2, merging_function):
     """
     Take two catalogs and stitch them together, taking some attributes from one catalog and some from the other.
