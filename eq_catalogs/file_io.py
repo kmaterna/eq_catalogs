@@ -274,6 +274,19 @@ def read_simple_catalog_txt(filename):
     return Catalog(MyCat)
 
 
+def read_txyzm(filename):
+    """A very simple filename with format like: 2018.3 lon lat depth mag"""
+    print("Reading file %s " % filename)
+    MyCat = []
+    t, x, y, z, m = np.loadtxt(filename, unpack=True)
+    for i in range(len(t)):
+        dt1 = dt.datetime.strptime(str(t[i])[0:4]+"-01-02", "%Y-%m-%d")
+        myEvent = Catalog_EQ(dt=dt1, lon=x[i], lat=y[i], depth=z[i], Mag=m[i])
+        MyCat.append(myEvent)
+    print("Reading %d catalog events from file %s " % (len(MyCat), filename))
+    return MyCat
+
+
 def read_wech(filename):
     start = 0
     MyCat = []
