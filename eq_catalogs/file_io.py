@@ -43,7 +43,10 @@ def input_qtm(filename):
 
 
 def input_shearer_cat(filename):
-    """ Read the Shearer Yang Catalog """
+    """
+    Read the Shearer Yang Catalog, or the Hauksson catalog
+    Example file name that can be read: sc_1981_2022q1_1d_3d_gc_soda.gc.txt
+    """
     ifile = open(filename)
     MyCat = []
     for line in ifile:
@@ -259,7 +262,10 @@ def read_associated_MT_file(filename):
 
 
 def read_simple_catalog_txt(filename):
-    """Reading a very simple .txt format for earthquake catalogs"""
+    """
+    Reading a basic .txt format for earthquake catalogs, matches the format written by matching function.
+    Format: datestring, lon, lat, depth, magnitude
+    """
     print("Reading Catalog in %s " % filename)
     [datestrs, lon, lat, depth, Mag] = np.loadtxt(filename, dtype={'names': ('datestr', 'lon', 'lat', 'depth', 'mag'),
                                                                    'formats': (
@@ -366,7 +372,10 @@ def read_pnsn052019_file(filename):
 # ---------- WRITE EARTHQUAKE CATALOGS --------------
 
 def write_simple_catalog_txt(MyCat, outfile):
-    """Writing a very simple .txt format for earthquake catalogs"""
+    """
+    Write a very simple .txt format for earthquake catalogs
+    Format: date, lon, lat, depth, magnitude
+    """
     print("Writing Catalog of length %d in %s " % (len(MyCat), outfile))
     ofile = open(outfile, 'w')
     # Adding header line
@@ -387,7 +396,10 @@ def write_simple_catalog_txt(MyCat, outfile):
 
 
 def write_location_catalog_txt(MyCat, outfile):
-    """Writing a very simple .txt format for earthquake catalogs"""
+    """
+    Write a minimalist .txt format for earthquake catalogs
+    Format: lon, lat
+    """
     print("Writing Catalog of length %d in %s " % (len(MyCat), outfile))
     ofile = open(outfile, 'w')
     # Adding header line

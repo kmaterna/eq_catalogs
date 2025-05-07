@@ -6,6 +6,7 @@ import datetime as dt
 
 
 class Catalog_EQ:
+    """ The individual earthquake object that gets compiled into a list of objects (a Catalog)"""
     def __init__(self, dt, lon, lat, depth, Mag, strike=None, dip=None, rake=None, catname='', bbox=None):
         self.dt = dt
         self.lon = lon
